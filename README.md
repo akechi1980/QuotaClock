@@ -14,7 +14,7 @@
   <a href="rom/README.md">固件成品</a>
 </p>
 
-> 图中均为**设计示意和示例数据，非实机照片**，不含真实账号、热点密码或网络配置。项目基于SDD V1.4增量开发；公开发布前请先阅读 [第三方来源与授权注意](THIRD_PARTY.md)。
+> 图中均为**设计示意和示例数据，非实机照片**，不含真实账号、热点密码或网络配置。项目基于SDD V1.4增量开发，感谢原作者及相关开源项目的贡献。
 
 ## 小屏幕，刚刚好
 
@@ -156,16 +156,20 @@ WEB与固件分别预览 → 反馈并确认 → 修改代码 → 编译测试
 ├─ docs/                       开发/运行说明、README本地配图
 ├─ ARCHIVE_INFO.json           依赖版本、目标参数
 ├─ SUBMISSION_MANIFEST.json    本提交目录逐文件校验
-└─ THIRD_PARTY.md              第三方来源与发布前授权检查
+└─ THIRD_PARTY.md              第三方项目来源与说明
 ```
 
-## 安全与授权
+## 使用注意
 
 - **只用于可信局域网。** 管理页免登录，服务也无公网认证机制，不要端口转发到互联网。
 - 本目录不含真实Token、Wi-Fi配置、账号/设备身份记录、实机NVS镜像、备份、运行日志或虚拟环境；成品ROM的NVS已检查为空。
-- 仅提交本目录，不提交上级工作区或旧 `archives/`。不要把Codex/OpenCode的登录文件复制进来。
 - 保留原厂备份与恢复链路；禁止强行16MB布局、烧写eFuse或绕过安全检查。
-- **发布前核实第三方许可。** 基于SDD V1.4，保留原作者署名；字库、图片与生成字形的授权需核实。未擅自为全工程添加MIT/Apache许可证，详见 [THIRD_PARTY.md](THIRD_PARTY.md)。
+
+## 致谢
+
+感谢 **SmallDesktopDisplay / SDD V1.4** 原作者 **Misaka、微车游**。QuotaClock在其天气时钟与配网功能的基础上增量开发，并保留原作者署名。
+
+感谢 **Espressif、TFT_eSPI、WiFiManager、ArduinoJson** 及其他配套库的开发者，也感谢原工程字库、图片与相关资源的贡献者。第三方项目来源与说明见 [THIRD_PARTY.md](THIRD_PARTY.md)。
 
 ---
 
