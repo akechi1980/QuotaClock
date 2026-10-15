@@ -23,7 +23,7 @@ try {
   @("directories:","  data: '$drive/data'","  downloads: '$drive/downloads'","  user: '$drive/user'") | Set-Content -LiteralPath $shortConfig -Encoding ASCII
   & py -3 (Join-Path $root 'embed_page.py')
   $ErrorActionPreference = 'Continue'
-  & 'C:\Program Files\Arduino CLI\arduino-cli.exe' --config-file $shortConfig compile --fqbn $fqbn --libraries "$drive/libraries" --build-path $output --jobs $Jobs $root 2>&1 | Tee-Object -FilePath $log
+  & 'C:\Program Files\Arduino CLI\arduino-cli.exe' --config-file $shortConfig compile --fqbn $fqbn --build-property 'build.partitions=huge_app' --libraries "$drive/libraries" --build-path $output --jobs $Jobs $root 2>&1 | Tee-Object -FilePath $log
   if ($LASTEXITCODE -ne 0) { throw "Compile failed; preserve log: $log" }
 } finally {
   & subst.exe $drive /d

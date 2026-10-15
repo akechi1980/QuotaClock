@@ -3,7 +3,7 @@
   "clean_rom_nvs_erased": true,
   "configured_secret_scan_passed": true,
   "known_personal_identifier_scan_passed": true,
-  "offline_tests_passed": 20,
+  "offline_tests_passed": 21,
   "third_party_license_review_required": true,
   "files": [
     {
@@ -13,13 +13,13 @@
     },
     {
       "file": ".gitignore",
-      "size": 548,
-      "sha256": "c8f541072ceb5c8d7b37dcf9ffaa080b3b2315b1a6477d52ddd4061672deff29"
+      "size": 578,
+      "sha256": "d333ca67a1a3ac870fce28e3842e90fdb6513d52c9bec5fc9eb98617ffca850a"
     },
     {
       "file": "ARCHIVE_INFO.json",
-      "size": 1024,
-      "sha256": "a9602e71b765f70ce65f608ad272221aa30e4cc7d34ecd96b78efca7cb739f37"
+      "size": 1323,
+      "sha256": "677a63a8808c29452295f53aeea5c3ccd13185c5adfc02194fe43e46576d9942"
     },
     {
       "file": "ARCHIVE_MANIFEST.json",
@@ -28,8 +28,8 @@
     },
     {
       "file": "README.md",
-      "size": 9803,
-      "sha256": "9c8673bdbfcc28e73bd3e9a847f3846a7264f91490f85f4b17856ea95b344928"
+      "size": 10259,
+      "sha256": "a4b751bce36c0626eabe6e43eb6eb4c1108146a5269d2ca2e11c8ec77be3e9b6"
     },
     {
       "file": "RESTORE_DEVELOPMENT.md",
@@ -63,13 +63,13 @@
     },
     {
       "file": "clock_rom/build.ps1",
-      "size": 2187,
-      "sha256": "6cb22e62c67db1503589787393707882808337f0119bb04e9bb7a986b28134f2"
+      "size": 2232,
+      "sha256": "c2453143c0e4f784430be2b588e5192cc1997851c20e89cc658529dd32604d67"
     },
     {
       "file": "clock_rom/clock_rom.ino",
       "size": 52956,
-      "sha256": "6473b829e38c52ba8ef4436340e40e53a967dce2eef53b9b227d6a921908416d"
+      "sha256": "147a526ed2fbe5784ee76a4672e675e1c09464d776bc3111690648d0c1d81715"
     },
     {
       "file": "clock_rom/device_preview.html",
@@ -249,7 +249,7 @@
     {
       "file": "clock_rom/hourly_web_preview.html",
       "size": 12839,
-      "sha256": "aa9cadbdc32ef9f3819cd0e89b07120e7f9c543737a95e4c9d41954ad679711e"
+      "sha256": "29435c40176a596538b19e65e76ea89cb865bea197c38acacbaad3e2633cb617"
     },
     {
       "file": "clock_rom/img/humidity.h",
@@ -458,8 +458,8 @@
     },
     {
       "file": "clock_rom/mono_integration.h",
-      "size": 22999,
-      "sha256": "49cfd980937f55d735da7efcb00dd89c6e8d71bf01af201abcbfd4265af6eea0"
+      "size": 23884,
+      "sha256": "c7a37e207e1fe92593693a9b1e8a565037386fd265c82e65ccaf50b4a79b9e60"
     },
     {
       "file": "clock_rom/number.cpp",
@@ -470,6 +470,16 @@
       "file": "clock_rom/number.h",
       "size": 1110,
       "sha256": "63972f6e2a3029794c93b4ef18ee9e82758ae0e36ed447385278a14a26cf1a01"
+    },
+    {
+      "file": "clock_rom/partitions.csv",
+      "size": 260,
+      "sha256": "46c75a0243c80cae6a1a95cc28b47a29ff6c8239d370986c39332596758c17de"
+    },
+    {
+      "file": "clock_rom/poll_schedule.h",
+      "size": 2021,
+      "sha256": "131d15b43f703e707b3d15188e620a630d5fa429f8a05e97849535ef689790b7"
     },
     {
       "file": "clock_rom/prepare.py",
@@ -488,8 +498,8 @@
     },
     {
       "file": "clock_rom/test_contract.py",
-      "size": 5482,
-      "sha256": "d018ceecc07a17d191247d8f18c1ed93b02121bf96a2074583981b0d3935badc"
+      "size": 6714,
+      "sha256": "90022fe49e3b2fa248ac84ca3d41a040e4d6cfa812adecd5800daf76ee54589b"
     },
     {
       "file": "clock_rom/test_preview.py",
@@ -503,8 +513,8 @@
     },
     {
       "file": "clock_rom/verify.py",
-      "size": 5107,
-      "sha256": "1cac8b5f028b445dde2a933dd275bc8dee19cad86114160eb77cc59efb6c1dd5"
+      "size": 5115,
+      "sha256": "3106b5dcf9245a405f9be3dc08ad689d9182ccfbe27c3192bff25399d6f49c05"
     },
     {
       "file": "clock_rom/wd.h",
@@ -528,8 +538,8 @@
     },
     {
       "file": "docs/DEVELOPMENT.md",
-      "size": 2809,
-      "sha256": "701f40dcbd062c3b64215787734b80a6174ddf669aaffc27fd0a44468f9759d9"
+      "size": 3011,
+      "sha256": "e7e359e02f3bc1ce705416a67d332f766af83ca01477671d08c81cd06b397e4b"
     },
     {
       "file": "docs/RUNNING.md",
@@ -543,8 +553,8 @@
     },
     {
       "file": "docs/images/hero.png",
-      "size": 112667,
-      "sha256": "4dcaad475bc33b693d01b9b7b4c92c80c44dc6732875cf009f13411c2d21e71d"
+      "size": 112866,
+      "sha256": "a7ad1064afe1645dd08db435cabf48e6b4ebd014473e8d1c678113f2d22c39e7"
     },
     {
       "file": "docs/images/weather-switch.png",
@@ -553,13 +563,13 @@
     },
     {
       "file": "docs/images/web-management-full.png",
-      "size": 99852,
-      "sha256": "cedd710aead392f678232e40291e53c7c61adaa37cb606ec8a0448b60eff052d"
+      "size": 99907,
+      "sha256": "654b57fedc3e6cfc99eea9249e11a367916e20156e2026bb4932abac12b07b1b"
     },
     {
       "file": "docs/images/web-management.png",
-      "size": 43939,
-      "sha256": "e8faa1b262afe5332559fa192d40ca48742873996d212f0e966bd6f7f0583b93"
+      "size": 44000,
+      "sha256": "a3920f4f2ad1c2b9c8cb9c03d520939730a6fc19ed32f08a4ed8437d854f5bed"
     },
     {
       "file": "maintenance/capture_web_preview.py",
@@ -574,7 +584,7 @@
     {
       "file": "maintenance/update_web_preview.py",
       "size": 4792,
-      "sha256": "937222b6afc66c21d8bfc326907171a92729142f9ab53a46f5548cba548504f3"
+      "sha256": "f2f15e91feac1c207785be1813d7a92ceefd24d196d9ce2b09b8aa5f67ad35e6"
     },
     {
       "file": "progress_service/README.md",
@@ -638,18 +648,23 @@
     },
     {
       "file": "rom/README.md",
-      "size": 927,
-      "sha256": "369196476298060a66ad24cf667905e1e72eb36de21b2295fdf99f7821a3dac0"
+      "size": 1335,
+      "sha256": "8068d8b5b4a246e66eace0dfa0ca2643cc5ebce44b187142031d1cd7445aa068"
     },
     {
       "file": "rom/SHA256SUMS.txt",
-      "size": 91,
-      "sha256": "7697c795fcd9e456129656de7986d67b13b5c4b3ed8aba937f86d8ae54d26204"
+      "size": 182,
+      "sha256": "507416cab0e355740256b99b39b483ef750adf3f73f2a03b7f2f4002af963d6b"
     },
     {
       "file": "rom/sdd_mono_0.2.2.clean.bin",
       "size": 8388608,
       "sha256": "d85f12f825675faa2371f1bb4baa00dd68960588e3ede3dfa5da0bc2f68b00b8"
+    },
+    {
+      "file": "rom/sdd_mono_0.2.3.clean.bin",
+      "size": 8388608,
+      "sha256": "7ab04b4556463fac404ec336aece6113143f8ff8b7ebe4e1b4a1788e05197290"
     },
     {
       "file": "vendor/clock_rom/libraries/Adafruit_Unified_Sensor/Adafruit_Sensor.cpp",
@@ -6928,5 +6943,13 @@
     }
   ],
   "preview_weather_roundtrip_verified": true,
-  "web_screenshot_from_firmware_html": true
+  "web_screenshot_from_firmware_html": true,
+  "firmware": "SDD MONO 0.2.3-dev",
+  "firmware_http_timeout_ms": 3000,
+  "firmware_single_retry_delay_ms": 10000,
+  "first_poll_failure_preserves_health": true,
+  "failed_retry_marks_unhealthy": true,
+  "repeated_ten_second_retry_loop": false,
+  "flash_and_full_readback_verified": true,
+  "network_fault_injection_runtime_tested": false
 }

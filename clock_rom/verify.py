@@ -73,7 +73,7 @@ def verify():
                   web_page_bytes=(ROOT / 'web_page.html').stat().st_size,
                   artifacts={name: dict(size=len(data), sha256=sha(data)) for name, data in artifacts.items()},
                   source_sha256={p.relative_to(ROOT).as_posix(): sha(p.read_bytes()) for p in sorted(ROOT.rglob('*'))
-                                 if p.is_file() and p.suffix in ['.ino', '.h', '.cpp', '.html', '.py', '.ps1']})
+                                 if p.is_file() and p.suffix in ['.ino', '.h', '.cpp', '.html', '.py', '.ps1', '.csv']})
     target = BUILD / ('manifest_' + datetime.now().strftime('%Y%m%d_%H%M%S_%f') + '.json')
     with target.open('x', encoding='utf-8') as output:
         json.dump(record, output, ensure_ascii=False, indent=2); output.write('\n')

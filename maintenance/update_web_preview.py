@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 MOCK = r'''<script>
 // Preview only: this replaces all fetch calls. Nothing reaches a real device.
-const previewState={version:'SDD MONO 0.2.2-dev / PREVIEW',connected:true,ip:'192.168.1.50',csrf:'preview-only',brightness:50,rotation:0,url:'http://192.168.1.100:8766/api/progress',interval_minutes:5,mode:'progress',city:'101010100',weather_interval:10,source_state:'PREVIEW / example values',online:true,hourly_enabled:false,hourly_volume:30,audio_state:'not_tested',audio_busy:false,tasks:[{label:'OpenAI 5 Hours',percent:5,stale:false},{label:'OpenAI Week',percent:54,stale:false},{label:'Cursor Month',percent:18,stale:false}]};
+const previewState={version:'SDD MONO 0.2.3-dev / PREVIEW',connected:true,ip:'192.168.1.50',csrf:'preview-only',brightness:50,rotation:0,url:'http://192.168.1.100:8766/api/progress',interval_minutes:5,mode:'progress',city:'101010100',weather_interval:10,source_state:'PREVIEW / example values',online:true,hourly_enabled:false,hourly_volume:30,audio_state:'not_tested',audio_busy:false,tasks:[{label:'OpenAI 5 Hours',percent:5,stale:false},{label:'OpenAI Week',percent:54,stale:false},{label:'Cursor Month',percent:18,stale:false}]};
 previewState.mode=new URLSearchParams(location.search).get('mode')==='weather'?'weather':'progress';
 let previewAudio;
 function previewModeNote(){const select=document.getElementById('mode');const note=document.getElementById('previewModeNote');if(select&&note)note.textContent='界面选择：'+(select.value==='weather'?'V1.4天气时钟':'灰阶时钟 / 三行进度')+'；点击底部“保存设置”应用（仅模拟），可随时切换回来。'}

@@ -1,8 +1,12 @@
 # 固件成品
 
-`sdd_mono_0.2.2.clean.bin`：8,388,608字节，ESP32-S3 / 8MB flash / 8MB OPI PSRAM的完整干净镜像。
+当前成品 `sdd_mono_0.2.3.clean.bin`：8,388,608字节，ESP32-S3 / 8MB flash / 8MB OPI PSRAM的完整干净镜像。
 
-SHA256：`D85F12F825675FAA2371F1BB4BAA00DD68960588E3EDE3DFA5DA0BC2F68B00B8`
+SHA256：`7AB04B4556463FAC404EC336AECE6113143F8FF8B7EBE4E1B4A1788E05197290`
+
+0.2.3：连接/读取超时各3秒；首个拉取失败保持原健康状态，10秒后仅重试一次，再失败才红灯；随后回到正常周期。断网、无有效数据及过期规则不变。
+
+旧成品 `sdd_mono_0.2.2.clean.bin` 保留，哈希 `D85F12F825675FAA2371F1BB4BAA00DD68960588E3EDE3DFA5DA0BC2F68B00B8`。逐项校验见 `SHA256SUMS.txt`，不要顺序刷写多个版本。
 
 NVS范围 `0x9000..0xDFFF` 已检查为全FF，无本机Wi-Fi配置、Token或账号绑定；不是实机读回镜像。新功能包括整点提醒、音量/三声试听、大字年月日与星期，主时钟字号不变。
 

@@ -21,6 +21,10 @@ class ContractTests(unittest.TestCase):
         self.assertIn('verify.py', source)
         self.assertIn("'run_'", source)
         self.assertIn('--build-dir', source)
+        self.assertIn("--build-property 'build.partitions=huge_app'", source)
+        partitions = (ROOT / 'partitions.csv').read_text()
+        self.assertIn('0x10000, 0x300000', partitions)
+        self.assertNotIn('app1', partitions)
 
     def test_async_bounded_progress_response(self):
         source = (ROOT / 'mono_integration.h').read_text(encoding='utf-8')
@@ -99,6 +103,21 @@ class ContractTests(unittest.TestCase):
         self.assertIn('sda = 40, scl = 39, mclk = 38, bclk = 16, ws = 7, dout = 4, pa = 8', audio)
         self.assertIn("request('/api/reminder/test'", page)
         self.assertNotIn('delay(', audio)
+
+    def test_one_retry_preserves_health_until_second_failure(self):
+        source = (ROOT / 'mono_integration.h').read_text(encoding='utf-8')
+        schedule = (ROOT / 'poll_schedule.h').read_text(encoding='utf-8')
+        self.assertIn('timeoutMs = 3000', schedule)
+        self.assertIn('retryMs = 10000', schedule)
+        self.assertIn('return !success && !wasRetry', schedule)
+        self.assertIn('wasRetry ? false : previousHealthy', schedule)
+        self.assertIn('No repeated ten-second retry loop', schedule)
+        self.assertIn('http.setConnectTimeout(monoPoll::timeoutMs)', source)
+        self.assertIn('http.setTimeout(monoPoll::timeoutMs)', source)
+        self.assertIn('monoPoll::healthyAfterResult(result.valid, requestWasRetry, pollHealthy)', source)
+        self.assertIn('monoPoll::retryAfterResult(result.valid, requestWasRetry)', source)
+        self.assertIn('requestWasRetry = retryPending', source)
+        self.assertNotIn('pollHealthy = result.valid', source)
 
 
 if __name__ == '__main__':

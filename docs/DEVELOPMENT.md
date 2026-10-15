@@ -24,6 +24,8 @@ py -3 -m unittest discover -s .\clock_rom -p 'test_*.py' -v
 
 每次编译新建 `build/clock_rom/run_时间戳/`，不复用旧分区缓存；校验S3、8MB、应用摘要和已验证huge_app分区精确SHA256/MD5。脚本不上传固件。绝对路径/编译时间可能导致重新编译哈希不同，不能误认为与打包ROM逐字节可复现。
 
+工程自带 `clock_rom/partitions.csv`，构建还显式固定 `build.partitions=huge_app`，避免旧core的8MB菜单设置覆盖分区选择；不得移除精确分区哈希检查来通过构建。
+
 ## 设计与实施
 
 分别打开 `clock_rom/hourly_web_preview.html` 与 `clock_rom/hourly_firmware_preview.html`，固件预览共用 `hourly_design.html`。先确认视觉/交互，再改固件与API；代码和预览保持同步。需更新ROM时先验证为无配置干净镜像，再重新生成提交清单；不要拿实机8MB读回文件替换公开成品。

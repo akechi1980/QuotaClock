@@ -1,7 +1,7 @@
 {
-  "firmware": "SDD MONO 0.2.2-dev",
+  "firmware": "SDD MONO 0.2.3-dev",
   "scope": "sanitized development source, template configuration and clean firmware",
-  "clean_rom_sha256": "d85f12f825675faa2371f1bb4baa00dd68960588e3ede3dfa5da0bc2f68b00b8",
+  "clean_rom_sha256": "7ab04b4556463fac404ec336aece6113143f8ff8b7ebe4e1b4a1788e05197290",
   "clean_rom_nvs_erased": true,
   "arduino_core": "2.0.12",
   "fqbn": "esp32:esp32:esp32s3:FlashSize=8M,PartitionScheme=huge_app,PSRAM=opi,USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=qio",
@@ -22,5 +22,9 @@
   "private_config_included": false,
   "device_snapshot_included": false,
   "toolchain_or_venv_included": false,
-  "functional_scope": "Flashing verified; individual audio/hourly tests need separate confirmation"
+  "functional_scope": "Flashing verified; individual audio/hourly tests need separate confirmation",
+  "firmware_http_timeout_ms": 3000,
+  "firmware_single_retry_delay_ms": 10000,
+  "firmware_first_failure_preserves_health": true,
+  "source_archive_manifest_scope": "ARCHIVE_MANIFEST.json is the original 0.2.2 sanitized source checkpoint; SUBMISSION_MANIFEST.json describes the current Git files"
 }

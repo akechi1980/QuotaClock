@@ -8,9 +8,10 @@
 #include "management_page.h"
 #include "ui_glyphs.h"
 #include "mono_audio.h"
+#include "poll_schedule.h"
 
 namespace mono {
-constexpr const char* version = "SDD MONO 0.2.2-dev";
+constexpr const char* version = "SDD MONO 0.2.3-dev";
 const char* const taskNames[] = {"OpenAI 5 Hours", "OpenAI Week", "Cursor Month"};
 struct Options { String url; uint32_t intervalMinutes = 5; bool progress = true; bool hourly = false; uint8_t volume = 30; } options;
 struct Job { char url[193]; uint32_t revision; };
@@ -21,6 +22,8 @@ TFT_eSprite calendar(&tft); // Reuse V1.4's existing Chinese font; no new font b
 String accessKey, csrf, apName;
 bool serverStarted = false, portalRequested = false, received = false, simulated = false;
 bool pollHealthy = false;
+bool retryPending = false, requestInFlight = false, requestWasRetry = false;
+uint32_t lastFailure = 0;
 uint8_t values[3] = {0, 0, 0};
 uint32_t lastValue = 0, lastRequest = 0, revision = 1, bootUntil = 0;
 String sourceState = "DEMO";
@@ -245,7 +248,7 @@ void pollWorker(void*) {
     if (xQueueReceive(jobs, &job, portMAX_DELAY) != pdTRUE) continue;
     Result result{}; result.revision = job.revision;
     WiFiClient client; HTTPClient http;
-    http.setConnectTimeout(1500); http.setTimeout(1500); http.setReuse(false);
+    http.setConnectTimeout(monoPoll::timeoutMs); http.setTimeout(monoPoll::timeoutMs); http.setReuse(false);
     if (http.begin(client, job.url)) {
       result.code = http.GET();
       if (result.code == 200 && http.getSize() <= 2048) {
@@ -292,6 +295,8 @@ void status() {
   doc["city"] = cityCode; doc["weather_interval"] = updateweater_time;
   doc["source_state"] = sourceState;
   doc["online"] = online();
+  doc["http_timeout_ms"] = monoPoll::timeoutMs; doc["retry_delay_ms"] = monoPoll::retryMs;
+  doc["retry_pending"] = retryPending; doc["retry_in_flight"] = requestInFlight && requestWasRetry;
   doc["hourly_enabled"] = options.hourly; doc["hourly_volume"] = options.volume;
   doc["audio_state"] = monoAudio::state < 0 ? "unavailable" : monoAudio::state > 0 ? "ready" : "not_tested";
   doc["audio_busy"] = monoAudio::busy;
@@ -346,6 +351,7 @@ void configure() {
   }
   if (options.url != candidate.url) { received = false; pollHealthy = false; }
   options = candidate; ++revision; lastRequest = millis() - pollIntervalMs();
+  retryPending = false; requestInFlight = false;
   if (!options.hourly && reminderActive) { reminderActive = false; legacyNeedsRefresh = !options.progress; }
   LCD_BL_PWM = brightness; LCD_Rotation = rotation; updateweater_time = weather; cityCode = city;
   analogWrite(LCD_BL_PIN, 255 - LCD_BL_PWM); // Preserve the proven V1.4 mapping.
@@ -371,6 +377,7 @@ void registerWeb() {
   server.onNotFound([] { if (authenticate()) jsonError(404, "not found"); });
   if (MDNS.begin("clock-progress")) MDNS.addService("http", "tcp", 80);
   server.begin(); serverStarted = true; lastRequest = millis() - pollIntervalMs();
+  retryPending = false; requestInFlight = false;
 }
 void startPortal() {
   if (serverStarted) { server.stop(); serverStarted = false; }
@@ -411,13 +418,22 @@ void tick() {
   else if (millis() - disconnected >= 15000) { startPortal(); disconnected = millis(); return; }
   Result result;
   if (results && xQueueReceive(results, &result, 0) == pdTRUE && result.revision == revision) {
-    pollHealthy = result.valid;
+    requestInFlight = false;
+    pollHealthy = monoPoll::healthyAfterResult(result.valid, requestWasRetry, pollHealthy);
+    retryPending = monoPoll::retryAfterResult(result.valid, requestWasRetry);
+    if (retryPending) lastFailure = millis();
     if (result.valid) { memcpy(values, result.values, 3); received = true; simulated = result.simulation; lastValue = millis(); sourceState = simulated ? "SIM / test source" : "OK"; }
-    else sourceState = result.code == 200 ? "invalid JSON" : "HTTP " + String(result.code);
+    else {
+      String error = result.code == 200 ? "invalid JSON" : "HTTP " + String(result.code);
+      sourceState = (retryPending ? "RETRY / " : "") + error;
+    }
   }
-  if (jobs && options.progress && options.url.length() && WiFi.status() == WL_CONNECTED && millis() - lastRequest >= pollIntervalMs()) {
+  if (jobs && options.progress && options.url.length() && WiFi.status() == WL_CONNECTED &&
+      monoPoll::due(millis(), lastRequest, lastFailure, pollIntervalMs(), retryPending, requestInFlight)) {
     Job job{}; options.url.toCharArray(job.url, sizeof(job.url)); job.revision = revision;
-    xQueueOverwrite(jobs, &job); lastRequest = millis();
+    if (xQueueOverwrite(jobs, &job) == pdTRUE) {
+      lastRequest = millis(); requestWasRetry = retryPending; requestInFlight = true;
+    }
   }
   if (bootUntil && (int32_t)(millis() - bootUntil) < 0) {
     boot("READY / LOCAL", "http://" + WiFi.localIP().toString(), "Local management / no login", 100); return;
