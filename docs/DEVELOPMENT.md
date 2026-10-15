@@ -27,3 +27,14 @@ py -3 -m unittest discover -s .\clock_rom -p 'test_*.py' -v
 ## 设计与实施
 
 分别打开 `clock_rom/hourly_web_preview.html` 与 `clock_rom/hourly_firmware_preview.html`，固件预览共用 `hourly_design.html`。先确认视觉/交互，再改固件与API；代码和预览保持同步。需更新ROM时先验证为无配置干净镜像，再重新生成提交清单；不要拿实机8MB读回文件替换公开成品。
+
+WEB预览当前由实际 `web_page.html` 加内存模拟API生成，保留真实CSS/控件；可模拟切换“天气时钟”和“灰阶时钟 / 三行进度”并保存，不访问设备。新方案先做预览确认，实施后再校准到真实页面。
+
+```powershell
+# 重新校准当前页面的离线预览
+py -3 .\maintenance\update_web_preview.py
+# 可选：安装Pillow后，用Chrome/Edge生成真实HTML截图（仅示例数据）
+py -3 .\maintenance\capture_web_preview.py
+```
+
+截图脚本使用隔离临时浏览器配置、仅监听本机的短期预览服务，结束自动关服务；不读取浏览器账号或实机页面。布局变化后要人工检查截图裁切，不能用手绘示意冒充当前管理页截图。

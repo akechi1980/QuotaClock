@@ -3,7 +3,7 @@
   "clean_rom_nvs_erased": true,
   "configured_secret_scan_passed": true,
   "known_personal_identifier_scan_passed": true,
-  "offline_tests_passed": 17,
+  "offline_tests_passed": 20,
   "third_party_license_review_required": true,
   "files": [
     {
@@ -28,8 +28,8 @@
     },
     {
       "file": "README.md",
-      "size": 8783,
-      "sha256": "43bd01ce5a649e68e0aedb85c802a8e14ffcb34b0cda023e627b4e74100703f6"
+      "size": 9803,
+      "sha256": "9c8673bdbfcc28e73bd3e9a847f3846a7264f91490f85f4b17856ea95b344928"
     },
     {
       "file": "RESTORE_DEVELOPMENT.md",
@@ -248,8 +248,8 @@
     },
     {
       "file": "clock_rom/hourly_web_preview.html",
-      "size": 7903,
-      "sha256": "544eee47443fac95cefe97b098e30610b9497715a14585ed1476d739c902f5b1"
+      "size": 12839,
+      "sha256": "aa9cadbdc32ef9f3819cd0e89b07120e7f9c543737a95e4c9d41954ad679711e"
     },
     {
       "file": "clock_rom/img/humidity.h",
@@ -492,6 +492,11 @@
       "sha256": "d018ceecc07a17d191247d8f18c1ed93b02121bf96a2074583981b0d3935badc"
     },
     {
+      "file": "clock_rom/test_preview.py",
+      "size": 1312,
+      "sha256": "8ea35f1bb0c52934d92082ad63e904e1706d51e62e70505f1ab448ee11f02c4e"
+    },
+    {
       "file": "clock_rom/ui_glyphs.h",
       "size": 8069,
       "sha256": "b22936ba3471be3f090f9c8c633a72a7cab65e19627eccf641d0280aef5c3f6b"
@@ -523,8 +528,8 @@
     },
     {
       "file": "docs/DEVELOPMENT.md",
-      "size": 2065,
-      "sha256": "13301e5362bd55d616683a7f87eb4bf054e7be9ddd464dccb90c66bb883ae5d9"
+      "size": 2809,
+      "sha256": "701f40dcbd062c3b64215787734b80a6174ddf669aaffc27fd0a44468f9759d9"
     },
     {
       "file": "docs/RUNNING.md",
@@ -542,14 +547,34 @@
       "sha256": "4dcaad475bc33b693d01b9b7b4c92c80c44dc6732875cf009f13411c2d21e71d"
     },
     {
+      "file": "docs/images/weather-switch.png",
+      "size": 8525,
+      "sha256": "aae31df1993e8da59211481c397cbf4726c8d6c03d9b48491cffee270b3bae75"
+    },
+    {
+      "file": "docs/images/web-management-full.png",
+      "size": 99852,
+      "sha256": "cedd710aead392f678232e40291e53c7c61adaa37cb606ec8a0448b60eff052d"
+    },
+    {
       "file": "docs/images/web-management.png",
-      "size": 143863,
-      "sha256": "3f5eb72bd670e7c551d2680f108533ced1a2b180200271651b98a3944e80bd46"
+      "size": 43939,
+      "sha256": "e8faa1b262afe5332559fa192d40ca48742873996d212f0e966bd6f7f0583b93"
+    },
+    {
+      "file": "maintenance/capture_web_preview.py",
+      "size": 2338,
+      "sha256": "d6069510a4d010fa492c7fe4c0ab24096d015adbceef4215e8d40a50a9ecb42c"
     },
     {
       "file": "maintenance/restore_dev.ps1",
       "size": 1712,
       "sha256": "f40ab4957984a30a9bff83488d65cb5dcc4c7800eb9a9c5b11429ec0e935b7bd"
+    },
+    {
+      "file": "maintenance/update_web_preview.py",
+      "size": 4792,
+      "sha256": "937222b6afc66c21d8bfc326907171a92729142f9ab53a46f5548cba548504f3"
     },
     {
       "file": "progress_service/README.md",
@@ -6901,5 +6926,7 @@
       "size": 19552,
       "sha256": "3a61045e735c165dd481492aa9b6fec0633780f0453e74d5ba8244276fead8f0"
     }
-  ]
+  ],
+  "preview_weather_roundtrip_verified": true,
+  "web_screenshot_from_firmware_html": true
 }
