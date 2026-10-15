@@ -1,0 +1,26 @@
+{
+  "firmware": "SDD MONO 0.2.2-dev",
+  "scope": "sanitized development source, template configuration and clean firmware",
+  "clean_rom_sha256": "d85f12f825675faa2371f1bb4baa00dd68960588e3ede3dfa5da0bc2f68b00b8",
+  "clean_rom_nvs_erased": true,
+  "arduino_core": "2.0.12",
+  "fqbn": "esp32:esp32:esp32s3:FlashSize=8M,PartitionScheme=huge_app,PSRAM=opi,USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=qio",
+  "library_versions": {
+    "Adafruit_Unified_Sensor": "1.1.4",
+    "ArduinoJson": "6.17.2",
+    "DHT_sensor_library": "1.4.2",
+    "FastLED": "3.3.2",
+    "TFT_eSPI": "2.5.43",
+    "Time-Library": "1.6",
+    "TJpg_Decoder": "1.1.0",
+    "WiFiManager": "2.0.17"
+  },
+  "python": "3.9+",
+  "build_dependency": "esptool==5.5.0",
+  "optional_glyph_dependency": "Pillow==12.2.0",
+  "source_examples_anonymized": true,
+  "private_config_included": false,
+  "device_snapshot_included": false,
+  "toolchain_or_venv_included": false,
+  "functional_scope": "Flashing verified; individual audio/hourly tests need separate confirmation"
+}

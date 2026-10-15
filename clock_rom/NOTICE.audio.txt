@@ -1,0 +1,8 @@
+ES8311 clock-divider and register initialization reference:
+Espressif Systems, esp-bsp/components/es8311/es8311.c
+Copyright 2015-2026 Espressif Systems (Shanghai) CO LTD
+https://github.com/espressif/esp-bsp/blob/master/components/es8311/es8311.c
+Licensed under Apache License 2.0; see LICENSE.audio-Apache-2.0.txt.
+
+mono_audio.h is a reduced Arduino/Wire playback-only adaptation for the
+seller's ES8311/NS4150B board, with original bounded sine playback/queue code.

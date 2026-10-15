@@ -1,0 +1,28 @@
+# Credentials / local authentication
+**/config.private.json
+**/.env
+**/.env.*
+!**/.env.example
+**/auth.json
+*.pem
+*.key
+# Recreated environments and build/runtime output
+**/.venv/
+.dev-venv/
+**/__pycache__/
+*.pyc
+*.pyo
+**/.runtime/
+build/
+vendor/clock_rom/data/
+vendor/clock_rom/downloads/
+vendor/clock_rom/user/
+vendor/clock_rom/arduino-cli.yaml
+# Device evidence / full-flash private snapshots must never enter this repository
+backup/
+archives/
+*.partial
+*.log
+# Only curated clean firmware belongs under rom/
+*.bin
+!rom/sdd_mono_0.2.2.clean.bin

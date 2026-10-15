@@ -1,0 +1,50 @@
+# 简易进度 JSON 服务
+
+## 一键启动 / 迁移（Windows）
+
+- 双击 `start.cmd`：首次自动创建本目录 `.venv`，之后先关闭本目录旧服务，再以 `pythonw.exe` 后台无窗口启动；启动窗口可关闭。
+- 双击 `stop.cmd`：只关闭本目录服务；未运行也可执行。日志保存在 `.runtime/`，不自动删除；启动失败时窗口提示。
+- 默认监听 `0.0.0.0:8766`，仅可信局域网使用。端口若被其他/无法识别的进程占用会拒绝启动，不误杀。先前通过相对路径手动启动的旧服务需手动停止一次，以后用本入口即可安全重启。
+- 安装Python 3.9+（推荐当前受支持版本）；仅标准库，`requirements.txt` 无第三方依赖。
+- 迁移时复制 `progress_service/`（排除 `.venv/`、`.runtime/`、`__pycache__/`），在新机双击启动重建环境。私密配置需自行安全转移或重填，禁止公开打包/上传。无需复制整个固件工作区。后台运行不等于开机自启，电脑重启后需再次启动。
+- 新机IP变化后，自行更新设备服务URL；不自动改防火墙。迁移包/旧归档不含Token。
+
+```powershell
+.\progress_service\start.ps1 -SetupOnly   # 只创建/检查虚拟环境，不动运行中服务
+.\progress_service\start.ps1 -BindAddress 192.168.1.100 -Port 8766
+```
+
+## 真实额度（已接通）
+
+当前LAN服务已运行 `--config` 模式，返回 `simulation:false`；用户已确认设备显示三项真实使用比例。最近联调值91% / 53% / 18%，仅代表当时读数。
+
+复制 `config.example.json` 为 `config.private.json`，仅在本机填写：
+- `openai.access_token`：Codex/ChatGPT 登录 access token，**不是 sk- API Key**；`account_id` 选填，多账号时填对应账号 ID。
+- `cursor.session_token`：网页 `WorkosCursorSessionToken` Cookie 的原始值，不含 Cookie 名称或其他 Cookie。
+
+```powershell
+py -3 .\progress_service\server.py --host 192.168.1.100 --port 8766 --config .\progress_service\config.private.json
+```
+
+同端口只运行一个服务，旧模拟服务已停止。私密配置勿提交、归档或分享；Token 到期需手动更换，不自动续期。OpenAI可从本机Codex登录文件的 `tokens.access_token` / `tokens.account_id` 复制到配置；服务不会自动读取或改写该文件。所有三行均为已使用比例，四舍五入并截到100。OpenAI按18000/604800秒窗口识别，Cursor取月度 `autoPercentUsed`，不含额外按量消费。缺少字段则报错，不猜分母。
+
+Cursor Month 使用 `individualUsage.plan.autoPercentUsed`（Auto额度池），四舍五入为整数；缺少Auto字段则报错，不回退到其他口径。
+
+使用非公开 HTTPS 仪表盘接口，禁止重定向转发凭据；上游超时10秒、响应上限1MB。启动后后台立即取数，成功每5分钟刷新、失败每1分钟重试；设备请求只读取内存缓存，不等待外部接口。尚无缓存、刷新失败或缓存超过10分钟时立即返回503，设备保留旧值并按已有规则判过期。不会向设备发送Token或上游原文。连续多个更新周期尚未专项验证。
+
+Python 标准库实现，只提供只读 HTTP，不安装依赖或修改防火墙。
+
+```powershell
+# 本机调试，返回明确的测试值
+py -3 .\progress_service\server.py --values 25 50 75
+# 设备访问：明确绑定 LAN；只在可信局域网使用
+py -3 .\progress_service\server.py --host 0.0.0.0 --demo
+# 真实数据：每次请求读取文件中的 {"progress":[...]}，支持随时更新
+py -3 .\progress_service\server.py --host 0.0.0.0 --file .\progress_service\progress.example.json
+```
+
+ROM 网页填写 `http://电脑局域网IP:8766/api/progress`，不要填 localhost。需要用户自行检查网络/防火墙可达性，不自动开放端口。
+
+响应：`{"progress":[25,50,75],"simulation":true}`。严格三项 0–100 整数，不接受小数或布尔值。固定测试值与 `--demo` 标为 simulation，设备显示 SIM；文件输入标为非模拟。原子替换数据文件可避免读取半写入 JSON；文件损坏/超限返回 503，设备保留旧值。
+
+`GET /health` 为健康检查；不提供数据写入接口、认证或公网部署能力。测试：`py -3 -m unittest discover -s .\progress_service -p 'test_*.py' -v`。

@@ -1,0 +1,9 @@
+{
+  "openai": {
+    "access_token": "",
+    "account_id": ""
+  },
+  "cursor": {
+    "session_token": ""
+  }
+}
