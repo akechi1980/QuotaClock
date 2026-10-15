@@ -3,7 +3,7 @@
   "clean_rom_nvs_erased": true,
   "configured_secret_scan_passed": true,
   "known_personal_identifier_scan_passed": true,
-  "offline_tests_passed": 21,
+  "offline_tests_passed": 28,
   "third_party_license_review_required": true,
   "files": [
     {
@@ -13,13 +13,13 @@
     },
     {
       "file": ".gitignore",
-      "size": 578,
-      "sha256": "d333ca67a1a3ac870fce28e3842e90fdb6513d52c9bec5fc9eb98617ffca850a"
+      "size": 608,
+      "sha256": "4875e1340dffd5b44314478b98e9ebc2355a6d14948657a1a0488d209279f78a"
     },
     {
       "file": "ARCHIVE_INFO.json",
-      "size": 1323,
-      "sha256": "677a63a8808c29452295f53aeea5c3ccd13185c5adfc02194fe43e46576d9942"
+      "size": 1583,
+      "sha256": "dc061314225d9b281db3ac0a1b6aefffac283e8b2f4340373ec806142c06c42b"
     },
     {
       "file": "ARCHIVE_MANIFEST.json",
@@ -28,8 +28,8 @@
     },
     {
       "file": "README.md",
-      "size": 10259,
-      "sha256": "a4b751bce36c0626eabe6e43eb6eb4c1108146a5269d2ca2e11c8ec77be3e9b6"
+      "size": 10865,
+      "sha256": "959ff62beae5180a8acca1b763f9ddd204fd89b31da2b7b62a55a2ae44b40de8"
     },
     {
       "file": "RESTORE_DEVELOPMENT.md",
@@ -43,8 +43,8 @@
     },
     {
       "file": "clock_rom/AUDIO_BOARD.md",
-      "size": 1016,
-      "sha256": "ef0b7e0c159899ad5d5cfa5c9325a68442c9099010cbfe2c24d58ab4314beeb2"
+      "size": 1040,
+      "sha256": "a0767412c2005066cd3a9c779ad1da0e96bc416a4247531dcabc853abb5a8478"
     },
     {
       "file": "clock_rom/LICENSE.audio-Apache-2.0.txt",
@@ -69,7 +69,7 @@
     {
       "file": "clock_rom/clock_rom.ino",
       "size": 52956,
-      "sha256": "147a526ed2fbe5784ee76a4672e675e1c09464d776bc3111690648d0c1d81715"
+      "sha256": "39e3a6a30d68a340729b6349d84ba2ed25beff3d4f4af695eb012a5edb190399"
     },
     {
       "file": "clock_rom/device_preview.html",
@@ -247,9 +247,14 @@
       "sha256": "c3b2562efe00fac88788129e43174a0fbaaad4c29874d5e1e52a7b86bc973667"
     },
     {
+      "file": "clock_rom/hourly_schedule.h",
+      "size": 1716,
+      "sha256": "bfe59f9a2065468320bc1a18c486a2997af8de15a2b93ffa3136df721d4ff788"
+    },
+    {
       "file": "clock_rom/hourly_web_preview.html",
-      "size": 12839,
-      "sha256": "29435c40176a596538b19e65e76ea89cb865bea197c38acacbaad3e2633cb617"
+      "size": 16819,
+      "sha256": "a0ce3fe9a0b76958b57c8cd46ec36c971e0a2122e1f5607cf97b7a7eb9c843f7"
     },
     {
       "file": "clock_rom/img/humidity.h",
@@ -448,18 +453,18 @@
     },
     {
       "file": "clock_rom/management_page.h",
-      "size": 9572,
-      "sha256": "f086e00e159c2655ef53318483ac0c126da18e0929558e89af2d4e2fcbd2d29b"
+      "size": 12949,
+      "sha256": "4fb760a912d07e3c1a4cc1b18cf50e196cddb3b9eb205e9dc35cf3de235406f4"
     },
     {
       "file": "clock_rom/mono_audio.h",
-      "size": 4232,
-      "sha256": "108e8a2978bce1d27731e9ceca32b41f3769d7d74b917133b8b642acfa7af30d"
+      "size": 4427,
+      "sha256": "670372135093d8a8198ea724bb23d046327d6b6f1da8ea095bea8e728b8fb47a"
     },
     {
       "file": "clock_rom/mono_integration.h",
-      "size": 23884,
-      "sha256": "c7a37e207e1fe92593693a9b1e8a565037386fd265c82e65ccaf50b4a79b9e60"
+      "size": 26124,
+      "sha256": "7ddec29e4d6d1e59109cc2cf287efae8505d66935e9d313a47cb488e0c01e62e"
     },
     {
       "file": "clock_rom/number.cpp",
@@ -498,8 +503,8 @@
     },
     {
       "file": "clock_rom/test_contract.py",
-      "size": 6714,
-      "sha256": "90022fe49e3b2fa248ac84ca3d41a040e4d6cfa812adecd5800daf76ee54589b"
+      "size": 8115,
+      "sha256": "adc95306a29eb92346e6878631a5c6f13707a0395272d7e4baa9f24a827baeec"
     },
     {
       "file": "clock_rom/test_preview.py",
@@ -533,8 +538,8 @@
     },
     {
       "file": "clock_rom/web_page.html",
-      "size": 9438,
-      "sha256": "7352f055c94764a98affc5c93296889e3fb62816b8e4385c07760eb0da91ea86"
+      "size": 12815,
+      "sha256": "10a064d08e260183c7e4ba0bd64c6711ab46b9193c6b47f359d02671b5a3eb8e"
     },
     {
       "file": "docs/DEVELOPMENT.md",
@@ -543,8 +548,8 @@
     },
     {
       "file": "docs/RUNNING.md",
-      "size": 1967,
-      "sha256": "203efd81ba2ce512ac42d22a5d0ee84aab74aa0896751d79f4cfde36ce53d418"
+      "size": 2104,
+      "sha256": "8b8d99fb6bc92d38aef4b2f860509b85d1313e377b8689ea7ddbd9676cfb71d6"
     },
     {
       "file": "docs/images/firmware.png",
@@ -553,8 +558,8 @@
     },
     {
       "file": "docs/images/hero.png",
-      "size": 112866,
-      "sha256": "a7ad1064afe1645dd08db435cabf48e6b4ebd014473e8d1c678113f2d22c39e7"
+      "size": 112855,
+      "sha256": "80bac232188ac4de015c0c2f2429f39dafbc722a7d29fdefba025a00d0a79a70"
     },
     {
       "file": "docs/images/weather-switch.png",
@@ -563,18 +568,18 @@
     },
     {
       "file": "docs/images/web-management-full.png",
-      "size": 99907,
-      "sha256": "654b57fedc3e6cfc99eea9249e11a367916e20156e2026bb4932abac12b07b1b"
+      "size": 114982,
+      "sha256": "89b0dfd09943e94c850fe99b4d557ac1d8a967993f9e5621f322fc56f8a85367"
     },
     {
       "file": "docs/images/web-management.png",
-      "size": 44000,
-      "sha256": "a3920f4f2ad1c2b9c8cb9c03d520939730a6fc19ed32f08a4ed8437d854f5bed"
+      "size": 57854,
+      "sha256": "7d718549c71386a478fe658beba982618cafed05201afe2fe392bd428883a539"
     },
     {
       "file": "maintenance/capture_web_preview.py",
       "size": 2338,
-      "sha256": "d6069510a4d010fa492c7fe4c0ab24096d015adbceef4215e8d40a50a9ecb42c"
+      "sha256": "31587bd35d2a7dab7e43fdf9ae34ff0d6f147671fc1475c2bb12644123d3fac0"
     },
     {
       "file": "maintenance/restore_dev.ps1",
@@ -583,13 +588,13 @@
     },
     {
       "file": "maintenance/update_web_preview.py",
-      "size": 4792,
-      "sha256": "f2f15e91feac1c207785be1813d7a92ceefd24d196d9ce2b09b8aa5f67ad35e6"
+      "size": 5401,
+      "sha256": "c13754bacf95a93f769192ee066b847b796305e449f098db02cad35d63c9a554"
     },
     {
       "file": "progress_service/README.md",
-      "size": 4332,
-      "sha256": "3e36c52556fcdd81844ca6cd94d939490f699f6add7b66ee1ba4f8c89ec74745"
+      "size": 4110,
+      "sha256": "a82c592a5cf9318220346adc671b73d14ab962139301d49683741e132a29daf3"
     },
     {
       "file": "progress_service/config.example.json",
@@ -603,8 +608,8 @@
     },
     {
       "file": "progress_service/quota.py",
-      "size": 3279,
-      "sha256": "364febb933057766c220d2ba47fcbfbdb1311734c6a1680854227cc33bd6a81b"
+      "size": 4407,
+      "sha256": "6c2cec3dfe4b253ea7fa854dec41de17a878a396f82a5d9bc5423ff11e037d5b"
     },
     {
       "file": "progress_service/requirements.txt",
@@ -638,8 +643,8 @@
     },
     {
       "file": "progress_service/test_quota.py",
-      "size": 1807,
-      "sha256": "a07e46662a3a06228d89b8af324cce1032212d8b307bba5c16d285c60d226e9d"
+      "size": 4504,
+      "sha256": "fdb59b0f0d4b914bb0b47efae3b97fffb52f45bc7398f660c9659b9dcc929afb"
     },
     {
       "file": "progress_service/test_server.py",
@@ -648,13 +653,13 @@
     },
     {
       "file": "rom/README.md",
-      "size": 1335,
-      "sha256": "8068d8b5b4a246e66eace0dfa0ca2643cc5ebce44b187142031d1cd7445aa068"
+      "size": 1705,
+      "sha256": "16c9685d611435dc76ff78d6b2d2c110a72d2e852f93991c7cfc49d37034115b"
     },
     {
       "file": "rom/SHA256SUMS.txt",
-      "size": 182,
-      "sha256": "507416cab0e355740256b99b39b483ef750adf3f73f2a03b7f2f4002af963d6b"
+      "size": 273,
+      "sha256": "a7e321d0525d053dc32af7c37a74d6b76c4434bd665f27ef7053956c2e08a099"
     },
     {
       "file": "rom/sdd_mono_0.2.2.clean.bin",
@@ -665,6 +670,11 @@
       "file": "rom/sdd_mono_0.2.3.clean.bin",
       "size": 8388608,
       "sha256": "7ab04b4556463fac404ec336aece6113143f8ff8b7ebe4e1b4a1788e05197290"
+    },
+    {
+      "file": "rom/sdd_mono_0.2.4.clean.bin",
+      "size": 8388608,
+      "sha256": "d615bf9400f2677a26951dd3f4ecc7ee816cf1c296789055cb75aba71596ebc2"
     },
     {
       "file": "vendor/clock_rom/libraries/Adafruit_Unified_Sensor/Adafruit_Sensor.cpp",
@@ -6944,12 +6954,24 @@
   ],
   "preview_weather_roundtrip_verified": true,
   "web_screenshot_from_firmware_html": true,
-  "firmware": "SDD MONO 0.2.3-dev",
+  "firmware": "SDD MONO 0.2.4-dev",
   "firmware_http_timeout_ms": 3000,
   "firmware_single_retry_delay_ms": 10000,
   "first_poll_failure_preserves_health": true,
   "failed_retry_marks_unhealthy": true,
   "repeated_ten_second_retry_loop": false,
   "flash_and_full_readback_verified": true,
-  "network_fault_injection_runtime_tested": false
+  "network_fault_injection_runtime_tested": false,
+  "hourly_window_seconds": 5,
+  "hourly_beeps_range": [
+    1,
+    5
+  ],
+  "hourly_beeps_default": 3,
+  "hourly_toggle_autosave": true,
+  "hourly_toggle_browser_rollback_verified": true,
+  "hourly_toggle_preserves_unsubmitted_settings": true,
+  "selected_beep_count_browser_audio_stub_verified": true,
+  "hourly_runtime_audio_tested": false,
+  "python_refresh_schedule": "UTC+8 10:00-03:00:120s; 03:00-10:00:300s"
 }

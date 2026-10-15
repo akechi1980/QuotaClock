@@ -30,12 +30,12 @@ def main():
         full = output / 'web-management-full.png'
         result = subprocess.run([str(browser), '--headless=new', '--disable-gpu', '--no-first-run',
                                  '--no-default-browser-check', '--hide-scrollbars', '--user-data-dir=' + str(profile),
-                                 '--window-size=1170,2000', '--virtual-time-budget=2000', '--screenshot=' + str(full), url],
+                                 '--window-size=1170,2400', '--virtual-time-budget=2000', '--screenshot=' + str(full), url],
                                 capture_output=True, timeout=30)
         if result.returncode:
             raise RuntimeError('Local browser capture failed; no private response was requested')
         image = Image.open(full)
-        image.crop((160,150,1010,1042)).save(output / 'web-management.png')
+        image.crop((160,150,1010,1230)).save(output / 'web-management.png')
         image.crop((588,315,1010,682)).save(output / 'weather-switch.png')
         print('Captured firmware HTML with offline example data. Inspect crops after any layout change.')
     finally:

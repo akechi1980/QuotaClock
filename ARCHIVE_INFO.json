@@ -1,7 +1,7 @@
 {
-  "firmware": "SDD MONO 0.2.3-dev",
+  "firmware": "SDD MONO 0.2.4-dev",
   "scope": "sanitized development source, template configuration and clean firmware",
-  "clean_rom_sha256": "7ab04b4556463fac404ec336aece6113143f8ff8b7ebe4e1b4a1788e05197290",
+  "clean_rom_sha256": "d615bf9400f2677a26951dd3f4ecc7ee816cf1c296789055cb75aba71596ebc2",
   "clean_rom_nvs_erased": true,
   "arduino_core": "2.0.12",
   "fqbn": "esp32:esp32:esp32s3:FlashSize=8M,PartitionScheme=huge_app,PSRAM=opi,USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=qio",
@@ -26,5 +26,13 @@
   "firmware_http_timeout_ms": 3000,
   "firmware_single_retry_delay_ms": 10000,
   "firmware_first_failure_preserves_health": true,
-  "source_archive_manifest_scope": "ARCHIVE_MANIFEST.json is the original 0.2.2 sanitized source checkpoint; SUBMISSION_MANIFEST.json describes the current Git files"
+  "source_archive_manifest_scope": "ARCHIVE_MANIFEST.json is the original 0.2.2 sanitized source checkpoint; SUBMISSION_MANIFEST.json describes the current Git files",
+  "hourly_window_seconds": 5,
+  "hourly_beeps_min": 1,
+  "hourly_beeps_max": 5,
+  "hourly_beeps_default": 3,
+  "hourly_toggle_autosave": true,
+  "python_refresh_timezone": "UTC+8",
+  "python_refresh_active_seconds": 120,
+  "python_refresh_other_seconds": 300
 }

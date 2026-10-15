@@ -12,6 +12,7 @@ namespace monoAudio {
 constexpr int sda = 40, scl = 39, mclk = 38, bclk = 16, ws = 7, dout = 4, pa = 8;
 constexpr uint8_t codec = 0x18;
 constexpr int sampleRate = 16000;
+struct Request { uint8_t volume; uint8_t beeps; };
 QueueHandle_t requests = nullptr;
 volatile int state = 0; // 0=not initialized, 1=ready, -1=failed
 volatile bool busy = false;
@@ -49,14 +50,15 @@ bool initialize() {
   i2s_zero_dma_buffer(I2S_NUM_0);
   return true;
 }
-bool play(uint8_t volume) {
+bool play(uint8_t volume, uint8_t beeps) {
   // Cap digital peak well below full scale, even at UI 100%; ramp avoids clicks.
   if (!writeReg(0x31, 0x00)) return false;
   i2s_zero_dma_buffer(I2S_NUM_0); digitalWrite(pa, HIGH);
   vTaskDelay(pdMS_TO_TICKS(20));
   int16_t block[256 * 2]; bool ok = true;
-  for (int index = 0; index < sampleRate * 3 / 2 && ok; index += 256) {
-    int count = min(256, sampleRate * 3 / 2 - index);
+  const int samples = sampleRate * beeps / 2;
+  for (int index = 0; index < samples && ok; index += 256) {
+    int count = min(256, samples - index);
     for (int j = 0; j < count; ++j) {
       int position = (index + j) % (sampleRate / 2);
       float envelope = position < 2880 ? min(1.0f, min(position / 240.0f, (2880-position) / 240.0f)) : 0;
@@ -71,23 +73,24 @@ bool play(uint8_t volume) {
   return ok;
 }
 void worker(void*) {
-  uint8_t volume;
+  Request job;
   for (;;) {
-    if (xQueueReceive(requests, &volume, portMAX_DELAY) != pdTRUE) continue;
-    if (volume && state == 0) state = initialize() ? 1 : -1;
-    if (volume && state == 1 && !play(volume)) { digitalWrite(pa, LOW); state = -1; }
+    if (xQueueReceive(requests, &job, portMAX_DELAY) != pdTRUE) continue;
+    if (job.volume && state == 0) state = initialize() ? 1 : -1;
+    if (job.volume && state == 1 && !play(job.volume, job.beeps)) { digitalWrite(pa, LOW); state = -1; }
     busy = false;
   }
 }
 void begin() {
   pinMode(pa, OUTPUT); digitalWrite(pa, LOW);
-  requests = xQueueCreate(1, sizeof(uint8_t));
+  requests = xQueueCreate(1, sizeof(Request));
   if (!requests || xTaskCreatePinnedToCore(worker, "hourly-audio", 4096, nullptr, 1, nullptr, 0) != pdPASS) state = -1;
 }
-bool request(uint8_t volume) {
-  if (busy || !requests || state < 0) return false;
+bool request(uint8_t volume, uint8_t beeps = 3) {
+  if (busy || !requests || state < 0 || beeps < 1 || beeps > 5 || volume > 100) return false;
+  Request job{volume, beeps};
   busy = true;
-  if (xQueueSend(requests, &volume, 0) != pdTRUE) { busy = false; return false; }
+  if (xQueueSend(requests, &job, 0) != pdTRUE) { busy = false; return false; }
   return true;
 }
 }

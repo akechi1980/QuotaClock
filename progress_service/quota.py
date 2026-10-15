@@ -3,8 +3,35 @@ import json
 import math
 import threading
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.request import Request, build_opener, HTTPRedirectHandler
+
+BEIJING = timezone(timedelta(hours=8))
+
+
+def refresh_interval(now=None):
+    """Successful upstream refreshes: 10:00..03:00 UTC+8 fast, otherwise slow."""
+    now = datetime.now(BEIJING) if now is None else now
+    if now.tzinfo is None:
+        raise ValueError('refresh time must be timezone-aware')
+    hour = now.astimezone(BEIJING).hour
+    return 120 if hour >= 10 or hour < 3 else 300
+
+
+def refresh_delay(now=None):
+    """Wake at a schedule boundary rather than carrying a five-minute sleep past it."""
+    now = datetime.now(BEIJING) if now is None else now
+    if now.tzinfo is None:
+        raise ValueError('refresh time must be timezone-aware')
+    now = now.astimezone(BEIJING)
+    if now.hour < 3:
+        boundary = now.replace(hour=3, minute=0, second=0, microsecond=0)
+    elif now.hour < 10:
+        boundary = now.replace(hour=10, minute=0, second=0, microsecond=0)
+    else:
+        boundary = (now + timedelta(days=1)).replace(hour=3, minute=0, second=0, microsecond=0)
+    return min(refresh_interval(now), (boundary - now).total_seconds())
 
 
 class NoRedirect(HTTPRedirectHandler):
@@ -82,4 +109,4 @@ class QuotaSource:
                     self.cached = values
                     self.failed = False
                     self.updated = time.monotonic()
-                time.sleep(300)
+                time.sleep(refresh_delay())

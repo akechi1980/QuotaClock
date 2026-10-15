@@ -27,3 +27,4 @@ archives/
 *.bin
 !rom/sdd_mono_0.2.2.clean.bin
 !rom/sdd_mono_0.2.3.clean.bin
+!rom/sdd_mono_0.2.4.clean.bin

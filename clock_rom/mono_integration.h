@@ -9,11 +9,12 @@
 #include "ui_glyphs.h"
 #include "mono_audio.h"
 #include "poll_schedule.h"
+#include "hourly_schedule.h"
 
 namespace mono {
-constexpr const char* version = "SDD MONO 0.2.3-dev";
+constexpr const char* version = "SDD MONO 0.2.4-dev";
 const char* const taskNames[] = {"OpenAI 5 Hours", "OpenAI Week", "Cursor Month"};
-struct Options { String url; uint32_t intervalMinutes = 5; bool progress = true; bool hourly = false; uint8_t volume = 30; } options;
+struct Options { String url; uint32_t intervalMinutes = 5; bool progress = true; bool hourly = false; uint8_t volume = 30; uint8_t beeps = 3; } options;
 struct Job { char url[193]; uint32_t revision; };
 struct Result { int code; bool valid; bool simulation; uint8_t values[3]; uint32_t revision; };
 QueueHandle_t jobs = nullptr, results = nullptr;
@@ -31,6 +32,10 @@ bool legacyNeedsRefresh = false;
 uint32_t reminderStarted = 0;
 bool reminderActive = false;
 time_t lastClock = 0, highestHour = 0;
+uint32_t lastClockTick = 0;
+uint8_t reminderBeeps = 3;
+time_t lastHourlyEpoch = 0;
+const char* lastHourlyAudio = "not_triggered";
 uint32_t lastAudition = 0;
 const uint16_t background = 0x29A7, muted = 0x8CB3, ink = 0xBE18, lit = 0xA597, unlit = 0x426A;
 constexpr int taskTop = 100, taskStep = 42, barOffset = 18, footerTop = 218;
@@ -69,6 +74,7 @@ bool saveOptions(const Options& value) {
   StaticJsonDocument<512> doc;
   doc["url"] = value.url; doc["interval_minutes"] = value.intervalMinutes; doc["progress"] = value.progress;
   doc["hourly_enabled"] = value.hourly; doc["hourly_volume"] = value.volume;
+  doc["hourly_beeps"] = value.beeps;
   String data; serializeJson(doc, data);
   bool ok = p.putString("settings", data) == data.length(); p.end(); return ok;
 }
@@ -86,6 +92,8 @@ void begin() {
         options.hourly = doc["hourly_enabled"] | false;
         unsigned volume = doc["hourly_volume"] | 30U;
         options.volume = volume <= 100 ? volume : 30;
+        unsigned beeps = doc["hourly_beeps"] | 3U;
+        options.beeps = beeps >= 1 && beeps <= 5 ? beeps : 3;
       }
     }
     p.end();
@@ -212,7 +220,8 @@ void drawReminder() {
   char text[8]; snprintf(text, sizeof(text), "%02d:%02d", local.tm_hour, local.tm_min);
   frame.setTextColor(ink, background); frame.drawCentreString(text, 120, 82, 7);
   uint32_t elapsed = millis() - reminderStarted;
-  for (unsigned n = 0; n < 3; ++n) frame.fillCircle(96+n*24, 175, 4, elapsed >= n*500 ? ink : unlit);
+  for (unsigned n = 0; n < reminderBeeps; ++n)
+    frame.fillCircle(120-(reminderBeeps-1)*12+n*24, 175, 4, elapsed >= n*500 ? ink : unlit);
   uiText("稍后返回", 92, 207, 14);
   frame.pushSprite(0, 0);
 }
@@ -220,12 +229,15 @@ void checkHourly() {
   time_t epoch = time(nullptr); struct tm local{};
   if (epoch < 946684800 || !localtime_r(&epoch, &local)) return;
   time_t hour = epoch / 3600;
-  bool crossed = lastClock && epoch >= lastClock && epoch-lastClock <= 2 && hour > highestHour;
+  uint32_t tickNow = millis();
+  bool trigger = monoHourly::due(epoch, lastClock, highestHour, tickNow-lastClockTick,
+                                options.hourly && WiFi.status() == WL_CONNECTED && !showingBoot());
   if (hour > highestHour) highestHour = hour;
-  lastClock = epoch;
-  if (crossed && options.hourly && WiFi.status() == WL_CONNECTED && local.tm_min == 0 && local.tm_sec <= 2 && !showingBoot()) {
-    reminderActive = true; reminderStarted = millis();
-    if (options.volume) monoAudio::request(options.volume);
+  lastClock = epoch; lastClockTick = tickNow;
+  if (trigger) {
+    reminderActive = true; reminderStarted = millis(); reminderBeeps = options.beeps;
+    lastHourlyEpoch = epoch;
+    lastHourlyAudio = !options.volume ? "muted" : monoAudio::request(options.volume, options.beeps) ? "queued" : "unavailable_or_busy";
   }
 }
 
@@ -298,6 +310,9 @@ void status() {
   doc["http_timeout_ms"] = monoPoll::timeoutMs; doc["retry_delay_ms"] = monoPoll::retryMs;
   doc["retry_pending"] = retryPending; doc["retry_in_flight"] = requestInFlight && requestWasRetry;
   doc["hourly_enabled"] = options.hourly; doc["hourly_volume"] = options.volume;
+  doc["hourly_beeps"] = options.beeps; doc["hourly_window_seconds"] = (unsigned)monoHourly::windowSeconds;
+  doc["clock_synced"] = time(nullptr) >= 946684800;
+  doc["last_hourly_epoch"] = (uint32_t)lastHourlyEpoch; doc["last_hourly_audio"] = lastHourlyAudio;
   doc["audio_state"] = monoAudio::state < 0 ? "unavailable" : monoAudio::state > 0 ? "ready" : "not_tested";
   doc["audio_busy"] = monoAudio::busy;
   JsonArray list = doc.createNestedArray("tasks");
@@ -328,7 +343,7 @@ void configure() {
       weather < 1 || weather > 60 || !validUrl(url) || !cityValid || cityNumber < 101000000 || cityNumber > 102000000 ||
       (mode != "progress" && mode != "weather")) { jsonError(400, "setting outside supported range"); return; }
   Options candidate; candidate.url = url; candidate.intervalMinutes = interval; candidate.progress = mode == "progress";
-  candidate.hourly = options.hourly; candidate.volume = options.volume;
+  candidate.hourly = options.hourly; candidate.volume = options.volume; candidate.beeps = options.beeps;
   if (doc.containsKey("hourly_enabled")) {
     if (!doc["hourly_enabled"].is<bool>()) { jsonError(400, "invalid hourly toggle"); return; }
     candidate.hourly = doc["hourly_enabled"].as<bool>();
@@ -336,6 +351,10 @@ void configure() {
   if (doc.containsKey("hourly_volume")) {
     if (!doc["hourly_volume"].is<int>() || doc["hourly_volume"].as<int>() < 0 || doc["hourly_volume"].as<int>() > 100) { jsonError(400, "invalid volume"); return; }
     candidate.volume = doc["hourly_volume"].as<int>();
+  }
+  if (doc.containsKey("hourly_beeps")) {
+    if (!doc["hourly_beeps"].is<int>() || doc["hourly_beeps"].as<int>() < 1 || doc["hourly_beeps"].as<int>() > 5) { jsonError(400, "invalid beep count"); return; }
+    candidate.beeps = doc["hourly_beeps"].as<int>();
   }
   if (!saveOptions(candidate)) { jsonError(500, "cannot save settings"); return; }
   EEPROM.write(BL_addr, brightness); EEPROM.write(Ro_addr, rotation); EEPROM.write(UpWeT_addr, weather);
@@ -358,10 +377,25 @@ void configure() {
   tft.setRotation(LCD_Rotation); legacyNeedsRefresh = !options.progress;
   server.send(200, "application/json", "{\"ok\":true}");
 }
+void configureReminder() {
+  if (!authenticate(true)) return;
+  String body = server.arg("plain"); StaticJsonDocument<128> doc;
+  if (body.length() > 128 || deserializeJson(doc, body) || !doc.is<JsonObject>() ||
+      doc.size() != 1 || !doc["hourly_enabled"].is<bool>()) { jsonError(400, "invalid reminder toggle"); return; }
+  bool enabled = doc["hourly_enabled"].as<bool>();
+  if (enabled != options.hourly) {
+    Options candidate = options; candidate.hourly = enabled;
+    if (!saveOptions(candidate)) { jsonError(500, "cannot save reminder"); return; }
+    options = candidate;
+    if (!enabled && reminderActive) { reminderActive = false; legacyNeedsRefresh = !options.progress; }
+  }
+  server.send(200, "application/json", enabled ? "{\"ok\":true,\"hourly_enabled\":true}" : "{\"ok\":true,\"hourly_enabled\":false}");
+}
 void registerWeb() {
   const char* headers[] = {"X-CP-Token"}; server.collectHeaders(headers, 1);
   server.on("/", HTTP_GET, [] { if (authenticate()) server.send_P(200, "text/html; charset=utf-8", managementPage); });
   server.on("/api/status", HTTP_GET, status); server.on("/api/config", HTTP_POST, configure);
+  server.on("/api/reminder/settings", HTTP_POST, configureReminder);
   server.on("/api/reminder/test", HTTP_POST, [] {
     if (!authenticate(true)) return;
     if (lastAudition && millis() - lastAudition < 3000) { jsonError(429, "wait before retrying"); return; }
@@ -369,8 +403,11 @@ void registerWeb() {
     StaticJsonDocument<128> doc;
     if (body.length() > 128 || deserializeJson(doc, body) || !doc["volume"].is<int>()) { jsonError(400, "invalid volume"); return; }
     int volume = doc["volume"];
+    if (doc.containsKey("beeps") && !doc["beeps"].is<int>()) { jsonError(400, "invalid beep count"); return; }
+    int beeps = doc["beeps"] | (int)options.beeps;
+    if (beeps < 1 || beeps > 5) { jsonError(400, "invalid beep count"); return; }
     if (volume < 0 || volume > 100) { jsonError(400, "invalid volume"); return; }
-    if (volume && !monoAudio::request(volume)) { jsonError(503, "audio unavailable or busy"); return; }
+    if (volume && !monoAudio::request(volume, beeps)) { jsonError(503, "audio unavailable or busy"); return; }
     lastAudition = millis(); server.send(202, "application/json", "{\"ok\":true,\"queued\":true}");
   });
   server.on("/api/portal", HTTP_POST, [] { if (authenticate(true)) { portalRequested = true; server.send(200, "application/json", "{\"ok\":true}"); } });

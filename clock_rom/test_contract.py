@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent
 class ContractTests(unittest.TestCase):
     def test_grey_page_no_external_framework(self):
         page = (ROOT / 'web_page.html').read_text(encoding='utf-8')
-        self.assertLess(len(page.encode('utf-8')), 12500)
+        self.assertLess(len(page.encode('utf-8')), 16000)
         self.assertNotIn('<script src=', page)
         self.assertNotIn('@import', page)
         self.assertIn('--bg:#202427', page)
@@ -92,17 +92,40 @@ class ContractTests(unittest.TestCase):
         self.assertIn('bool hourly = false; uint8_t volume = 30', source)
         self.assertIn('doc["hourly_enabled"] = value.hourly', source)
         self.assertIn('doc["hourly_volume"] = value.volume', source)
-        self.assertIn('epoch-lastClock <= 2 && hour > highestHour', source)
-        self.assertIn('local.tm_min == 0 && local.tm_sec <= 2', source)
+        self.assertIn('monoHourly::due(epoch, lastClock, highestHour', source)
         self.assertIn('millis() - reminderStarted < 3000', source)
         self.assertIn('frame.drawCentreString(text, 120, 43, synced ? 7 : 4)', source)
         self.assertIn('frame.drawCentreString(text, 120, 82, 7)', source)
         self.assertIn('"/api/reminder/test", HTTP_POST', source)
-        self.assertIn('xQueueSend(requests, &volume, 0)', audio)
+        self.assertIn('xQueueSend(requests, &job, 0)', audio)
         self.assertIn('digitalWrite(pa, LOW)', audio)
         self.assertIn('sda = 40, scl = 39, mclk = 38, bclk = 16, ws = 7, dout = 4, pa = 8', audio)
         self.assertIn("request('/api/reminder/test'", page)
         self.assertNotIn('delay(', audio)
+
+    def test_five_second_hourly_schedule_guards_clock_jumps(self):
+        schedule = (ROOT / 'hourly_schedule.h').read_text()
+        self.assertIn('windowSeconds = 5', schedule)
+        for rule in ('No startup chime', 'Never duplicate an hour', 'Reject backward clock movement',
+                     'Reject fast wall-clock correction', 'Tolerate a five-second loop delay'):
+            self.assertIn(rule, schedule)
+
+    def test_configurable_beeps_and_partial_toggle(self):
+        source = (ROOT / 'mono_integration.h').read_text(encoding='utf-8')
+        page = (ROOT / 'web_page.html').read_text(encoding='utf-8')
+        audio = (ROOT / 'mono_audio.h').read_text()
+        self.assertIn('uint8_t beeps = 3', source)
+        self.assertIn('doc["hourly_beeps"] = value.beeps', source)
+        self.assertIn('doc.size() != 1', source)
+        self.assertIn('Options candidate = options; candidate.hourly = enabled', source)
+        self.assertIn('"/api/reminder/settings", HTTP_POST, configureReminder', source)
+        self.assertIn('monoAudio::request(options.volume, options.beeps)', source)
+        self.assertIn('sampleRate * beeps / 2', audio)
+        self.assertIn('beeps < 1 || beeps > 5', audio)
+        self.assertIn('hourly-toggle::before', page)
+        self.assertIn("request('/api/reminder/settings',{hourly_enabled:on})", page)
+        self.assertIn("renderHourly(previous,", page)
+        self.assertIn("beeps:Number(el('hourlyBeeps').value)", page)
 
     def test_one_retry_preserves_health_until_second_failure(self):
         source = (ROOT / 'mono_integration.h').read_text(encoding='utf-8')
