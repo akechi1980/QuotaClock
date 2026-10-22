@@ -3,7 +3,7 @@
   "clean_rom_nvs_erased": true,
   "configured_secret_scan_passed": true,
   "known_personal_identifier_scan_passed": true,
-  "offline_tests_passed": 28,
+  "offline_tests_passed": 20,
   "third_party_license_review_required": true,
   "files": [
     {
@@ -13,13 +13,13 @@
     },
     {
       "file": ".gitignore",
-      "size": 608,
-      "sha256": "4875e1340dffd5b44314478b98e9ebc2355a6d14948657a1a0488d209279f78a"
+      "size": 638,
+      "sha256": "aa9b01b062e2f494bd1a43c74bf4c1504da816d339c4496d0d51d43f6941d9f8"
     },
     {
       "file": "ARCHIVE_INFO.json",
-      "size": 1583,
-      "sha256": "dc061314225d9b281db3ac0a1b6aefffac283e8b2f4340373ec806142c06c42b"
+      "size": 2056,
+      "sha256": "641f77283cf2595911e9d02fb5b698ae2c2153a0384546ce58b02ffe1f6a62e0"
     },
     {
       "file": "ARCHIVE_MANIFEST.json",
@@ -28,8 +28,8 @@
     },
     {
       "file": "README.md",
-      "size": 10865,
-      "sha256": "959ff62beae5180a8acca1b763f9ddd204fd89b31da2b7b62a55a2ae44b40de8"
+      "size": 11472,
+      "sha256": "ec91b59e5f9803fddc5f26896d023ed9838082974874453ba3859ccb037d1434"
     },
     {
       "file": "RESTORE_DEVELOPMENT.md",
@@ -58,8 +58,13 @@
     },
     {
       "file": "clock_rom/README.md",
-      "size": 179,
-      "sha256": "561d010ed1c0acaa8a03fd9f935c54f78e5bc02f23be44a7a35713d368814bda"
+      "size": 447,
+      "sha256": "119beab524cdbb6b09935366a9ebd061841d9e13adfd4150eac4e4151e8813fe"
+    },
+    {
+      "file": "clock_rom/bounded_client.h",
+      "size": 2611,
+      "sha256": "d146ab891a24533b73ebc403aee48f06e3deb856147d7c30418865b8f1a3cccc"
     },
     {
       "file": "clock_rom/build.ps1",
@@ -68,8 +73,8 @@
     },
     {
       "file": "clock_rom/clock_rom.ino",
-      "size": 52956,
-      "sha256": "39e3a6a30d68a340729b6349d84ba2ed25beff3d4f4af695eb012a5edb190399"
+      "size": 54059,
+      "sha256": "d587e27386e1e552f49446b7dc6af10d59af7ae5869a6bea8bb5a73380c7fec4"
     },
     {
       "file": "clock_rom/device_preview.html",
@@ -463,8 +468,8 @@
     },
     {
       "file": "clock_rom/mono_integration.h",
-      "size": 26124,
-      "sha256": "7ddec29e4d6d1e59109cc2cf287efae8505d66935e9d313a47cb488e0c01e62e"
+      "size": 29772,
+      "sha256": "c77139cc974e86d2463bfc5db51350ac49954ed4c0d7a2850cb73c75f4b7ebd9"
     },
     {
       "file": "clock_rom/number.cpp",
@@ -503,13 +508,18 @@
     },
     {
       "file": "clock_rom/test_contract.py",
-      "size": 8115,
-      "sha256": "adc95306a29eb92346e6878631a5c6f13707a0395272d7e4baa9f24a827baeec"
+      "size": 9076,
+      "sha256": "a866c6cce24d71b31a48c5c7bb087bb6f59547696ca5655d4d5dbe3f14a5a8fd"
     },
     {
       "file": "clock_rom/test_preview.py",
       "size": 1312,
       "sha256": "8ea35f1bb0c52934d92082ad63e904e1706d51e62e70505f1ab448ee11f02c4e"
+    },
+    {
+      "file": "clock_rom/test_reliability.py",
+      "size": 2252,
+      "sha256": "43c703f1d97d118a1c04ad662671210c65ba268151d74792ca9f7aacadaa08a4"
     },
     {
       "file": "clock_rom/ui_glyphs.h",
@@ -527,6 +537,11 @@
       "sha256": "39985c2f1215a7b4af9812d4d98d2d670d09ae7e2c0d0a4f69b48d2df5ebb4ac"
     },
     {
+      "file": "clock_rom/weather_runtime.h",
+      "size": 7930,
+      "sha256": "1ab2923f25b3892fe2a31e4e9867896b677979a073540d57bb3c8bf2b1a79244"
+    },
+    {
       "file": "clock_rom/weathernum.cpp",
       "size": 2044,
       "sha256": "ab856012f08791d97dea549e1e1601b79f2d017b2d476c85a81650a70a14cd9b"
@@ -542,9 +557,19 @@
       "sha256": "10a064d08e260183c7e4ba0bd64c6711ab46b9193c6b47f359d02671b5a3eb8e"
     },
     {
+      "file": "clock_rom/wifi_recovery.h",
+      "size": 2072,
+      "sha256": "1b4939a8be9af7fdf30b14c8a76367e752ddda82ef2da84cb075b1e9ad87e984"
+    },
+    {
       "file": "docs/DEVELOPMENT.md",
       "size": 3011,
       "sha256": "e7e359e02f3bc1ce705416a67d332f766af83ca01477671d08c81cd06b397e4b"
+    },
+    {
+      "file": "docs/RELIABILITY.md",
+      "size": 2460,
+      "sha256": "d642c1e92548e775599a68634c9c946bd27f2029a20616aefea422dbcef3a827"
     },
     {
       "file": "docs/RUNNING.md",
@@ -558,8 +583,8 @@
     },
     {
       "file": "docs/images/hero.png",
-      "size": 112855,
-      "sha256": "80bac232188ac4de015c0c2f2429f39dafbc722a7d29fdefba025a00d0a79a70"
+      "size": 112875,
+      "sha256": "4d1a3ef8d8388cf535f9d57178d608ab74d19aab7cf7df378b40f7ce44302212"
     },
     {
       "file": "docs/images/weather-switch.png",
@@ -580,6 +605,26 @@
       "file": "maintenance/capture_web_preview.py",
       "size": 2338,
       "sha256": "31587bd35d2a7dab7e43fdf9ae34ff0d6f147671fc1475c2bb12644123d3fac0"
+    },
+    {
+      "file": "maintenance/native_reliability_test.py",
+      "size": 5128,
+      "sha256": "3a8d5ca8364f78cbd60d50e899ab28ab9a97fc3e1511f99ce922647577e4b15f"
+    },
+    {
+      "file": "maintenance/native_stubs/Arduino.h",
+      "size": 1726,
+      "sha256": "49e158b2ba884014208ce4f13f6e574e659d1a3962dc1d89d336555f967f59b9"
+    },
+    {
+      "file": "maintenance/native_stubs/WiFi.h",
+      "size": 1240,
+      "sha256": "b19656aea8ae7613299457bd1b6dad25d010e767ae2848c8d1bc0ad9955c7a47"
+    },
+    {
+      "file": "maintenance/native_stubs/sys/socket.h",
+      "size": 273,
+      "sha256": "ed471a0ecbd7c1d2d51b7d35adc27f39ae558eef055fb92a6bf8dc0c31f21a65"
     },
     {
       "file": "maintenance/restore_dev.ps1",
@@ -653,13 +698,13 @@
     },
     {
       "file": "rom/README.md",
-      "size": 1705,
-      "sha256": "16c9685d611435dc76ff78d6b2d2c110a72d2e852f93991c7cfc49d37034115b"
+      "size": 2047,
+      "sha256": "6e5be8f1b495cf7f86bffa83cafb8878c9c7159d3de2a1b9dc8df3c31953a618"
     },
     {
       "file": "rom/SHA256SUMS.txt",
-      "size": 273,
-      "sha256": "a7e321d0525d053dc32af7c37a74d6b76c4434bd665f27ef7053956c2e08a099"
+      "size": 364,
+      "sha256": "d0d37c7a59f9512f88576305105ecc56f76ce37314c9ddc45df0b0ac28a08eb7"
     },
     {
       "file": "rom/sdd_mono_0.2.2.clean.bin",
@@ -675,6 +720,11 @@
       "file": "rom/sdd_mono_0.2.4.clean.bin",
       "size": 8388608,
       "sha256": "d615bf9400f2677a26951dd3f4ecc7ee816cf1c296789055cb75aba71596ebc2"
+    },
+    {
+      "file": "rom/sdd_mono_0.2.6.clean.bin",
+      "size": 8388608,
+      "sha256": "edb6872b0d6794ad5209cefbe7c53a3f606eb9145691a5a3bb41bc4c13ba3ae7"
     },
     {
       "file": "vendor/clock_rom/libraries/Adafruit_Unified_Sensor/Adafruit_Sensor.cpp",
@@ -6954,7 +7004,7 @@
   ],
   "preview_weather_roundtrip_verified": true,
   "web_screenshot_from_firmware_html": true,
-  "firmware": "SDD MONO 0.2.4-dev",
+  "firmware": "SDD MONO 0.2.6-dev",
   "firmware_http_timeout_ms": 3000,
   "firmware_single_retry_delay_ms": 10000,
   "first_poll_failure_preserves_health": true,
@@ -6973,5 +7023,19 @@
   "hourly_toggle_preserves_unsubmitted_settings": true,
   "selected_beep_count_browser_audio_stub_verified": true,
   "hourly_runtime_audio_tested": false,
-  "python_refresh_schedule": "UTC+8 10:00-03:00:120s; 03:00-10:00:300s"
+  "python_refresh_schedule": "UTC+8 10:00-03:00:120s; 03:00-10:00:300s",
+  "offline_test_scope": "firmware source contracts only",
+  "native_weather_fixtures": 8,
+  "native_simulated_transport_assertions": 11,
+  "read_only_observation_seconds": [
+    120,
+    360
+  ],
+  "read_only_max_loop_ms": 72,
+  "read_only_final_free_heap": 234096,
+  "read_only_final_heap_span": 4,
+  "read_only_sources_healthy": true,
+  "screen_audio_outage_verified": false,
+  "complete_running_site_modified": false,
+  "service_snapshot_unchanged": true
 }

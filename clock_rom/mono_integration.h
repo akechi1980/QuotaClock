@@ -10,9 +10,13 @@
 #include "mono_audio.h"
 #include "poll_schedule.h"
 #include "hourly_schedule.h"
+#include "wifi_recovery.h"
+#include <esp_wifi.h>
+#include "bounded_client.h"
+#include "weather_runtime.h"
 
 namespace mono {
-constexpr const char* version = "SDD MONO 0.2.4-dev";
+constexpr const char* version = "SDD MONO 0.2.6-dev";
 const char* const taskNames[] = {"OpenAI 5 Hours", "OpenAI Week", "Cursor Month"};
 struct Options { String url; uint32_t intervalMinutes = 5; bool progress = true; bool hourly = false; uint8_t volume = 30; uint8_t beeps = 3; } options;
 struct Job { char url[193]; uint32_t revision; };
@@ -22,6 +26,12 @@ TFT_eSprite frame(&tft);
 TFT_eSprite calendar(&tft); // Reuse V1.4's existing Chinese font; no new font blob.
 String accessKey, csrf, apName;
 bool serverStarted = false, portalRequested = false, received = false, simulated = false;
+bool routesRegistered = false, manualPortal = false;
+bool pollWorkerReady = false;
+TaskHandle_t pollTask = nullptr;
+uint32_t maxLoopMs = 0;
+int storedWifiState = monoWifi::Unknown;
+uint32_t lastWifiAttempt = 0;
 bool pollHealthy = false;
 bool retryPending = false, requestInFlight = false, requestWasRetry = false;
 uint32_t lastFailure = 0;
@@ -104,6 +114,11 @@ void begin() {
   apName = "Clock-" + WiFi.macAddress().substring(12);
   apName.replace(":", "");
   frame.setColorDepth(16); frame.createSprite(240, 240);
+  if (!frame.created()) {
+    tft.fillScreen(TFT_BLACK); tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.drawString("Display memory unavailable", 8, 80, 2);
+    tft.drawString("Web management still available", 8, 110, 2);
+  }
   calendar.setColorDepth(16);
   if (calendar.createSprite(240, 38)) calendar.loadFont(ZdyLwFont_20);
   jobs = xQueueCreate(1, sizeof(Job)); results = xQueueCreate(1, sizeof(Result));
@@ -259,7 +274,7 @@ void pollWorker(void*) {
   for (;;) {
     if (xQueueReceive(jobs, &job, portMAX_DELAY) != pdTRUE) continue;
     Result result{}; result.revision = job.revision;
-    WiFiClient client; HTTPClient http;
+    BoundedClient client(10000); HTTPClient http;
     http.setConnectTimeout(monoPoll::timeoutMs); http.setTimeout(monoPoll::timeoutMs); http.setReuse(false);
     if (http.begin(client, job.url)) {
       result.code = http.GET();
@@ -283,8 +298,8 @@ void pollWorker(void*) {
   }
 }
 void startPolling() {
-  if (jobs && results && xTaskCreatePinnedToCore(pollWorker, "progress-http", 8192, nullptr, 1, nullptr, 0) != pdPASS)
-    sourceState = "worker unavailable";
+  pollWorkerReady = jobs && results && xTaskCreatePinnedToCore(pollWorker, "progress-http", 8192, nullptr, 1, &pollTask, 0) == pdPASS;
+  if (!pollWorkerReady) sourceState = "worker unavailable";
 }
 bool authenticate(bool write = false) {
   // User requested no management login in this development version.
@@ -298,7 +313,7 @@ void jsonError(int code, const char* message) {
 }
 void status() {
   if (!authenticate()) return;
-  StaticJsonDocument<1536> doc;
+  StaticJsonDocument<2048> doc;
   doc["version"] = version; doc["connected"] = WiFi.status() == WL_CONNECTED;
   doc["ip"] = WiFi.localIP().toString(); doc["csrf"] = csrf;
   doc["brightness"] = LCD_BL_PWM; doc["rotation"] = LCD_Rotation;
@@ -315,6 +330,18 @@ void status() {
   doc["last_hourly_epoch"] = (uint32_t)lastHourlyEpoch; doc["last_hourly_audio"] = lastHourlyAudio;
   doc["audio_state"] = monoAudio::state < 0 ? "unavailable" : monoAudio::state > 0 ? "ready" : "not_tested";
   doc["audio_busy"] = monoAudio::busy;
+  doc["wifi_saved_config"] = storedWifiState == monoWifi::Present ? "present" : storedWifiState == monoWifi::Missing ? "missing" : "unknown";
+  doc["wifi_portal_active"] = wm.getConfigPortalActive(); doc["wifi_portal_manual"] = manualPortal;
+  doc["loop_max_ms"] = maxLoopMs;
+  doc["uptime_ms"] = millis(); doc["free_heap"] = ESP.getFreeHeap(); doc["min_free_heap"] = ESP.getMinFreeHeap();
+  doc["poll_stack_free"] = pollTask ? uxTaskGetStackHighWaterMark(pollTask) : 0;
+  doc["weather_stack_free"] = monoWeather::task ? uxTaskGetStackHighWaterMark(monoWeather::task) : 0;
+  doc["poll_worker_ready"] = pollWorkerReady;
+  doc["poll_in_flight"] = requestInFlight;
+  doc["weather_state"] = monoWeather::state;
+  doc["weather_in_flight"] = monoWeather::inFlight;
+  doc["weather_last_success_ms"] = monoWeather::lastSuccess;
+  doc["weather_self_tests"] = monoWeather::selfTestsPassed;
   JsonArray list = doc.createNestedArray("tasks");
   bool demo = !received || !options.url.length();
   for (unsigned n = 0; n < 3; ++n) {
@@ -392,6 +419,7 @@ void configureReminder() {
   server.send(200, "application/json", enabled ? "{\"ok\":true,\"hourly_enabled\":true}" : "{\"ok\":true,\"hourly_enabled\":false}");
 }
 void registerWeb() {
+  if (!routesRegistered) {
   const char* headers[] = {"X-CP-Token"}; server.collectHeaders(headers, 1);
   server.on("/", HTTP_GET, [] { if (authenticate()) server.send_P(200, "text/html; charset=utf-8", managementPage); });
   server.on("/api/status", HTTP_GET, status); server.on("/api/config", HTTP_POST, configure);
@@ -413,18 +441,29 @@ void registerWeb() {
   server.on("/api/portal", HTTP_POST, [] { if (authenticate(true)) { portalRequested = true; server.send(200, "application/json", "{\"ok\":true}"); } });
   server.onNotFound([] { if (authenticate()) jsonError(404, "not found"); });
   if (MDNS.begin("clock-progress")) MDNS.addService("http", "tcp", 80);
+  routesRegistered = true;
+  }
   server.begin(); serverStarted = true; lastRequest = millis() - pollIntervalMs();
   retryPending = false; requestInFlight = false;
 }
-void startPortal() {
+int readStoredWifiState() {
+  wifi_config_t config{};
+  if (esp_wifi_get_config(WIFI_IF_STA, &config) != ESP_OK) return monoWifi::Unknown;
+  return config.sta.ssid[0] ? monoWifi::Present : monoWifi::Missing;
+}
+void startPortal(bool manual = false) {
+  if (wm.getConfigPortalActive()) return;
+  manualPortal = manual;
+  ++revision; requestInFlight = false; retryPending = false;
   if (serverStarted) { server.stop(); serverStarted = false; }
-  wm.setConfigPortalBlocking(false); wm.setConnectTimeout(15); wm.setDebugOutput(false);
+  wm.setConfigPortalBlocking(false); wm.setConnectTimeout(15); wm.setSaveConnectTimeout(15); wm.setDebugOutput(false);
   wm.setClass("invert");
   // This callback executes BEFORE the library registers its default routes.
   // Register blockers first; do not merely hide OTA links in the menu.
   wm.setWebServerCallback([] {
     wm.server->on("/update", HTTP_ANY, [] { wm.server->send(403, "text/plain", "Host-verified firmware writes only"); });
     wm.server->on("/u", HTTP_POST, [] { wm.server->send(403, "text/plain", "Firmware upload disabled"); }, [] {});
+    wm.server->on("/wifi", HTTP_GET, [] { wm.server->sendHeader("Location", "/wifinoscan", true); wm.server->send(302, "text/plain", "Use direct Wi-Fi entry"); });
   });
   wm.setCustomHeadElement("<style>body{background:#202427;color:#b9c2c7}div{background:transparent}input,button{border:1px solid #414c53;border-radius:6px;background:#2d3438;color:#b9c2c7}button{background:#a5b1b8;color:#202427}a{color:#b9c2c7}</style>");
   // The original /wifi route synchronously scans before returning the page.
@@ -432,18 +471,41 @@ void startPortal() {
   static std::vector<const char*> menu = {"wifinoscan", "exit"};
   wm.setMenu(menu);
   wm.startConfigPortal(apName.c_str(), accessKey.c_str());
+  // WiFiManager deliberately disables disconnected STA on entry. Re-enable it
+  // only for automatic fallback so saved Wi-Fi can recover without a form save.
+  if (!manualPortal && wm.getConfigPortalActive()) {
+    WiFi.enableSTA(true); WiFi.setAutoReconnect(true);
+    storedWifiState = readStoredWifiState();
+    if (storedWifiState == monoWifi::Present) WiFi.begin();
+  }
+  lastWifiAttempt = millis();
+}
+void connectSavedWifi() {
+  WiFi.setAutoReconnect(true); WiFi.begin(); lastWifiAttempt = millis();
+  storedWifiState = readStoredWifiState();
+  // SSID() describes a connected AP, not whether NVS contains credentials.
+  if (monoWifi::openPortal(WiFi.status() == WL_CONNECTED, false, storedWifiState, 0)) startPortal();
 }
 void tick() {
   checkHourly();
-  if (portalRequested) { portalRequested = false; startPortal(); }
+  if (portalRequested) { portalRequested = false; startPortal(true); }
   if (wm.getConfigPortalActive()) {
     wm.process();
-    static uint32_t lastPortalDraw = 0;
-    if (!lastPortalDraw || millis() - lastPortalDraw >= 500) {
-      boot("SETUP / WI-FI", apName, "http://192.168.4.1", 30);
-      lastPortalDraw = millis();
+    if (monoWifi::closePortal(wm.getConfigPortalActive(), manualPortal, WiFi.status() == WL_CONNECTED)) wm.stopConfigPortal();
+    if (wm.getConfigPortalActive()) {
+      if (millis() - lastWifiAttempt >= monoWifi::retryMs) storedWifiState = readStoredWifiState();
+      if (monoWifi::retrySaved(true, manualPortal, WiFi.status() == WL_CONNECTED, storedWifiState,
+                               WiFi.softAPgetStationNum(), millis() - lastWifiAttempt)) {
+        WiFi.enableSTA(true); WiFi.begin(); lastWifiAttempt = millis();
+      }
+      static uint32_t lastPortalDraw = 0;
+      if (!lastPortalDraw || millis() - lastPortalDraw >= 500) {
+        boot("SETUP / WI-FI", apName, "http://192.168.4.1", 30);
+        lastPortalDraw = millis();
+      }
+      return;
     }
-    return;
+    manualPortal = false;
   }
   if (WiFi.status() == WL_CONNECTED && !serverStarted) {
     registerWeb(); bootUntil = millis() + 3000;
@@ -451,9 +513,12 @@ void tick() {
   }
   if (serverStarted) server.handleClient();
   static uint32_t disconnected = millis();
-  if (WiFi.status() == WL_CONNECTED) disconnected = millis();
-  else if (millis() - disconnected >= 15000) { startPortal(); disconnected = millis(); return; }
+  if (WiFi.status() == WL_CONNECTED) { disconnected = millis(); storedWifiState = monoWifi::Present; }
+  else if (monoWifi::openPortal(false, false, storedWifiState, millis() - disconnected)) { startPortal(); disconnected = millis(); return; }
   Result result;
+  if (requestInFlight && millis() - lastRequest > 60000) {
+    pollHealthy = false; sourceState = "worker overdue"; // Diagnose, never spawn duplicate workers.
+  }
   if (results && xQueueReceive(results, &result, 0) == pdTRUE && result.revision == revision) {
     requestInFlight = false;
     pollHealthy = monoPoll::healthyAfterResult(result.valid, requestWasRetry, pollHealthy);
@@ -465,7 +530,7 @@ void tick() {
       sourceState = (retryPending ? "RETRY / " : "") + error;
     }
   }
-  if (jobs && options.progress && options.url.length() && WiFi.status() == WL_CONNECTED &&
+  if (pollWorkerReady && options.progress && options.url.length() && WiFi.status() == WL_CONNECTED &&
       monoPoll::due(millis(), lastRequest, lastFailure, pollIntervalMs(), retryPending, requestInFlight)) {
     Job job{}; options.url.toCharArray(job.url, sizeof(job.url)); job.revision = revision;
     if (xQueueOverwrite(jobs, &job) == pdTRUE) {

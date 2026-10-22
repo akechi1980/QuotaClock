@@ -1,8 +1,12 @@
 # 固件成品
 
-当前成品 `sdd_mono_0.2.4.clean.bin`：8,388,608字节，ESP32-S3 / 8MB flash / 8MB OPI PSRAM的完整干净镜像。
+当前成品 `sdd_mono_0.2.6.clean.bin`：8,388,608字节，ESP32-S3 / 8MB flash / 8MB OPI PSRAM的完整干净镜像。
 
-SHA256：`D615BF9400F2677A26951DD3F4ECC7EE816CF1C296789055CB75ABA71596EBC2`
+SHA256：`EDB6872B0D6794AD5209CEFBE7C53A3F606EB9145691A5A3BB41BC4C13BA3AE7`
+
+0.2.6：包含Wi-Fi启动/自动配网恢复修复；后台天气/系统异步SNTP、传输预算及响应上限、失败降级与健康指标。界面/提醒规则不变，已知边界见 `../docs/RELIABILITY.md`。
+
+旧成品 `sdd_mono_0.2.4.clean.bin` 保留，SHA256 `D615BF9400F2677A26951DD3F4ECC7EE816CF1C296789055CB75ABA71596EBC2`。
 
 0.2.4：整点容错窗口5秒，每小时最多一次，大幅校时不补报；1–5声可选，默认3声。滑动开关即时保存、失败显示回退，不影响其他未保存设置；音量/次数需保存，试听使用当前选择。
 

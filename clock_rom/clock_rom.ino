@@ -31,7 +31,7 @@
  * *****************************************************************/
 //#define BOARD_ESP8266
 #define BOARD_ESP32
-#define Version  "SDD MONO 0.2.4-dev"
+#define Version  "SDD MONO 0.2.6-dev"
 /* *****************************************************************
  *  库文件、头文件
  * *****************************************************************/
@@ -992,9 +992,9 @@ void setup()
   mono::begin(); mono::boot("CLOCK / PROGRESS", "Starting runtime", "Network + local management", 10);
   TJpgDec.setJpgScale(1); TJpgDec.setSwapBytes(true); TJpgDec.setCallback(tft_output);
   Udp.begin(localPort); targetTime = millis() + 1000;
-  WiFi.begin(); // WiFiManager owns saved STA credentials.
   mono::startPolling();
-  if (!WiFi.SSID().length()) mono::startPortal();
+  monoWeather::begin();
+  mono::connectSavedWifi(); // Read saved config, not the not-yet-connected SSID().
   if (!mono::progressEnabled()) mono::legacyNeedsRefresh = true;
   Serial.println(Version); // Do not print credentials.
 #if 0 // Original V1.4 blocking boot, retained as source reference only.
@@ -1137,16 +1137,30 @@ void setup()
 
 void loop()
 {
+  uint32_t loopStarted = millis();
+  // The original renderer uses TimeLib, now fed by asynchronous system SNTP.
+  time_t systemEpoch = time(nullptr);
+  static time_t lastSystemEpoch = 0;
+  if (systemEpoch >= 946684800 && systemEpoch != lastSystemEpoch) {
+    setTime(systemEpoch + 8 * 3600); lastSystemEpoch = systemEpoch;
+  }
   mono::tick();
+  bool weatherVisible = !mono::progressEnabled() && WiFi.status() == WL_CONNECTED && !mono::showingBoot();
+  // Warm one weather snapshot after boot, without changing the user's mode.
+  // Subsequent scheduled refreshes run only while weather is visible.
+  bool warmWeather = !monoWeather::attempted && WiFi.status() == WL_CONNECTED && !mono::showingBoot();
+  monoWeather::tick(weatherVisible || warmWeather, cityCode, updateweater_time);
   if (!mono::progressEnabled() && WiFi.status() == WL_CONNECTED && !mono::showingBoot()) {
     if (mono::legacyNeedsRefresh) {
       mono::legacyNeedsRefresh = false;
       tft.fillScreen(TFT_BLACK);
       TJpgDec.drawJpg(15,183,temperature, sizeof(temperature));
       TJpgDec.drawJpg(15,213,humidity, sizeof(humidity));
-      setSyncProvider(getNtpTime); setSyncInterval(300); LCD_reflash(1);
+      monoWeather::repaint = true; LCD_reflash(1);
     } else LCD_reflash(0);
+    monoWeather::paint();
   }
+  mono::maxLoopMs = max(mono::maxLoopMs, (uint32_t)(millis() - loopStarted));
   // Old Serial_set bypasses input validation; use validated local web settings.
   delay(5);
 }
@@ -1174,6 +1188,8 @@ void LCD_reflash(int en)
 #endif
 
 
+  // Historical synchronous network path retained as reference, never executed.
+#if 0
   if(millis() - weaterTime > (60000*updateweater_time) || en == 1 || UpdateWeater_en != 0){ //10分钟更新一次天气
     if(Wifi_en == 0)
     {
@@ -1197,6 +1213,7 @@ void LCD_reflash(int en)
       #endif
     }
   }
+#endif
 }
 
 // 发送HTTP请求并且将服务器响应通过串口输出
@@ -1248,6 +1265,8 @@ void getCityCode(){
 
 // 获取城市天气
 void getCityWeater(){
+  if (!monoWeather::inFlight) monoWeather::attempted = false;
+#if 0 // Original download retained as reference; active downloads use the worker.
  //String URL = "http://d1.weather.com.cn/dingzhi/" + cityCode + ".html?_="+String(now());//新
  String URL = "http://d1.weather.com.cn/weather_index/" + cityCode + ".html?_="+String(now());
   //创建 HTTPClient 对象
@@ -1310,6 +1329,7 @@ void getCityWeater(){
 
   //关闭ESP8266与服务器连接
   httpClient.end();
+#endif
 }
 
 
@@ -1463,7 +1483,7 @@ void weaterData(String *cityDZ,String *dataSK,String *dataFC,String *dataWarn1)
     //case 2: //暴雨
     default:TJpgDec.drawJpg(175,110,BG_Color, sizeof(BG_Color));Serial.println("NULL");break;
   }*/
-  uint16_t weatherWarnBgColor1;
+  uint16_t weatherWarnBgColor1 = bgColor;
   switch(Warn_Value1) { //这等级把我搞蒙了，一会蓝色是0，一会又变成1
     //填充颜色
     case 1:weatherWarnBgColor1 = tft.color565(0,128,255);break; //蓝色

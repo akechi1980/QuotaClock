@@ -6,6 +6,21 @@ ROOT = Path(__file__).resolve().parent
 
 
 class ContractTests(unittest.TestCase):
+    def test_wifi_recovery_uses_saved_config_not_connected_ssid(self):
+        source = (ROOT / 'mono_integration.h').read_text(encoding='utf-8')
+        sketch = (ROOT / 'clock_rom.ino').read_text(encoding='utf-8')
+        rules = (ROOT / 'wifi_recovery.h').read_text()
+        self.assertIn('esp_wifi_get_config(WIFI_IF_STA, &config)', source)
+        self.assertNotIn('WiFi.SSID()', sketch.split('void setup()')[1].split('#if 0')[0])
+        self.assertIn('mono::connectSavedWifi()', sketch)
+        self.assertIn('startPortal(true)', source)
+        self.assertIn('wm.stopConfigPortal()', source)
+        self.assertIn('WiFi.softAPgetStationNum()', source)
+        self.assertIn('if (!routesRegistered)', source)
+        for guard in ('Unknown config is not empty config', 'Manual reconfiguration stays open',
+                      'Do not interrupt a phone', 'Connected device never falls back for quota failure'):
+            self.assertIn(guard, rules)
+
     def test_grey_page_no_external_framework(self):
         page = (ROOT / 'web_page.html').read_text(encoding='utf-8')
         self.assertLess(len(page.encode('utf-8')), 16000)
